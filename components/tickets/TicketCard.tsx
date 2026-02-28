@@ -23,12 +23,9 @@ interface TicketCardProps {
 }
 
 export default function TicketCard({ ticket, event }: TicketCardProps) {
-  const qrPayload = JSON.stringify({
-    ticketNumber: ticket.ticketNumber,
-    eventTitle: event.title,
-    holderName: ticket.holderName,
-    ...JSON.parse(ticket.qrCode || "{}"),
-  });
+  // Keep QR payload simple — just the ticket number.
+  // A plain short string produces a sparse, easy-to-scan QR code.
+  const qrPayload = ticket.ticketNumber;
 
   const handlePrint = () => {
     window.print();
@@ -148,13 +145,13 @@ export default function TicketCard({ ticket, event }: TicketCardProps) {
 
           {/* Right section - QR code */}
           <div className="flex flex-col items-center justify-center p-5 sm:pl-8 sm:pr-6 sm:w-52">
-            <div className="bg-white p-2.5 rounded-xl">
+            <div className="bg-white p-3 rounded-xl">
               <QRCodeSVG
                 value={qrPayload}
-                size={120}
+                size={160}
                 bgColor="#ffffff"
                 fgColor="#111111"
-                level="H"
+                level="M"
                 aria-label={`QR code for ticket ${ticket.ticketNumber}`}
               />
             </div>

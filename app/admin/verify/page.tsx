@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 
 /*  Types  */
 
@@ -23,6 +23,8 @@ interface VerifyResult {
 
 type ScanState = "idle" | "scanning" | "verifying" | "success" | "error" | "already-used";
 
+const QR_DIV_ID = "qr-reader-fixed";
+
 /*  Page  */
 
 export default function AdminVerifyPage() {
@@ -30,8 +32,9 @@ export default function AdminVerifyPage() {
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [manualInput, setManualInput] = useState("");
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraLive, setCameraLive] = useState(false);
   const [httpsWarning, setHttpsWarning] = useState(false);
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
   const processingRef = useRef(false);
 
   /*  HTTPS check  */
@@ -46,18 +49,20 @@ export default function AdminVerifyPage() {
     }
   }, []);
 
-  /*  Verify ticket number via API  */
-  const verifyTicket = useCallback(async (ticketNumber: string) => {
+  /*  Verify ticket via API  */
+  const verifyTicket = useCallback(async (raw: string) => {
     if (processingRef.current) return;
     processingRef.current = true;
     setScanState("verifying");
     setResult(null);
 
-    // Stop the scanner while we verify
-    if (scannerRef.current) {
-      scannerRef.current.clear().catch(() => {});
-      scannerRef.current = null;
-      setCameraOpen(false);
+    // Extract ticketNumber  support plain string or JSON
+    let ticketNumber = raw.trim();
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed?.ticketNumber) ticketNumber = parsed.ticketNumber;
+    } catch {
+      // plain text  use as-is
     }
 
     try {
@@ -84,88 +89,100 @@ export default function AdminVerifyPage() {
     }
   }, []);
 
-  /*  Parse QR payload and extract ticket number  */
-  const handleDecoded = useCallback(
-    (text: string) => {
-      if (processingRef.current) return;
-      let ticketNumber = text.trim();
+  /*  Stop camera  */
+  const stopCamera = useCallback(async () => {
+    if (scannerRef.current) {
       try {
-        const parsed = JSON.parse(text);
-        if (parsed.ticketNumber) ticketNumber = parsed.ticketNumber;
-      } catch {
-        // plain text  use as-is
-      }
-      verifyTicket(ticketNumber);
-    },
-    [verifyTicket],
-  );
+        const state = scannerRef.current.getState();
+        // State 2 = SCANNING, state 3 = PAUSED
+        if (state === 2 || state === 3) {
+          await scannerRef.current.stop();
+        }
+      } catch { /* ignore */ }
+      scannerRef.current = null;
+    }
+    setCameraLive(false);
+    setCameraOpen(false);
+  }, []);
 
-  /*  Mount the scanner once cameraOpen becomes true  */
-  useEffect(() => {
-    if (!cameraOpen) return;
+  /*  Start camera  */
+  const startCamera = useCallback(async () => {
+    if (scannerRef.current) {
+      await stopCamera();
+    }
 
-    // Small delay to ensure the div is painted
-    const timer = setTimeout(() => {
-      if (scannerRef.current) return; // already mounted
+    // The div #QR_DIV_ID is always in the DOM with real dimensions.
+    // We just need to make it visible first (cameraOpen=true triggers render)
+    // by waiting a tick for React to repaint.
+    setCameraOpen(true);
+    setCameraLive(false);
+    setScanState("scanning");
+    setResult(null);
+    processingRef.current = false;
 
-      const scanner = new Html5QrcodeScanner(
-        "qr-reader-container",
+    // Wait for the div to be painted with real dimensions
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    const scanner = new Html5Qrcode(QR_DIV_ID, { verbose: false });
+    scannerRef.current = scanner;
+
+    try {
+      await scanner.start(
+        { facingMode: "environment" },
         {
-          fps: 10,
-          qrbox: { width: 260, height: 260 },
-          rememberLastUsedCamera: true,
-          supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-          showTorchButtonIfSupported: true,
+          fps: 15,
+          qrbox: (w, h) => {
+            const min = Math.min(w, h);
+            const size = Math.floor(min * 0.7);
+            return { width: size, height: size };
+          },
+          aspectRatio: 1.0,
         },
-        /* verbose= */ false,
+        (decodedText) => {
+          // Success: stop camera and verify
+          stopCamera();
+          verifyTicket(decodedText);
+        },
+        () => {
+          // Per-frame decode failure  ignore
+        },
       );
-
-      scanner.render(
-        (text) => {
-          handleDecoded(text);
-        },
-        (_error) => {
-          // per-frame decode failure  ignore
-        },
-      );
-
-      scannerRef.current = scanner;
-      setScanState("scanning");
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [cameraOpen, handleDecoded]);
+      setCameraLive(true);
+    } catch (err) {
+      console.error("Camera start error:", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      const isPermission =
+        msg.toLowerCase().includes("permission") ||
+        msg.toLowerCase().includes("denied") ||
+        msg.toLowerCase().includes("notallowed") ||
+        msg.toLowerCase().includes("notfound");
+      setCameraOpen(false);
+      setScanState("error");
+      setResult({
+        error: isPermission
+          ? "Camera permission denied. Tap the lock icon in your browser address bar, allow camera, then try again."
+          : `Camera failed to start: ${msg}`,
+      });
+      scannerRef.current = null;
+    }
+  }, [stopCamera, verifyTicket]);
 
   /*  Cleanup on unmount  */
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {});
+        try {
+          const state = scannerRef.current.getState();
+          if (state === 2 || state === 3) {
+            scannerRef.current.stop().catch(() => {});
+          }
+        } catch { /* ignore */ }
         scannerRef.current = null;
       }
     };
   }, []);
 
-  /*  Open camera  */
-  const openCamera = () => {
-    setResult(null);
-    setScanState("scanning");
-    setCameraOpen(true);
-  };
-
-  /*  Close camera  */
-  const closeCamera = () => {
-    if (scannerRef.current) {
-      scannerRef.current.clear().catch(() => {});
-      scannerRef.current = null;
-    }
-    setCameraOpen(false);
-    setScanState("idle");
-  };
-
-  /*  Manual submit  */
+  /*  Manual entry submit  */
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = manualInput.trim();
@@ -173,11 +190,17 @@ export default function AdminVerifyPage() {
   };
 
   /*  Reset  */
-  const resetScan = () => {
+  const resetScan = useCallback(() => {
     setScanState("idle");
     setResult(null);
     setManualInput("");
-  };
+    processingRef.current = false;
+  }, []);
+
+  const scanAgain = useCallback(() => {
+    resetScan();
+    startCamera();
+  }, [resetScan, startCamera]);
 
   return (
     <div className="max-w-lg mx-auto space-y-4">
@@ -198,47 +221,105 @@ export default function AdminVerifyPage() {
           <div>
             <p className="text-xs font-semibold text-amber-400 mb-0.5">HTTPS required for camera</p>
             <p className="text-xs text-amber-400/60">
-              Mobile browsers block camera on plain HTTP. Use{" "}
-              <code className="bg-white/10 px-1 rounded">https://</code> or{" "}
+              Mobile browsers block camera on plain HTTP. Access via{" "}
+              <code className="bg-white/10 px-1 rounded">https://</code> or use{" "}
               <code className="bg-white/10 px-1 rounded">localhost</code>. Manual entry works without HTTPS.
             </p>
           </div>
         </div>
       )}
 
-      {/* Camera toggle button  only shown when not open */}
-      {!cameraOpen && scanState !== "verifying" && (
-        <button
-          onClick={openCamera}
-          disabled={httpsWarning}
-          className="w-full flex items-center justify-center gap-2.5 bg-[#111] hover:bg-[#1a1a1a] disabled:opacity-30 disabled:cursor-not-allowed border border-white/[0.06] rounded-2xl py-10 transition-colors cursor-pointer group"
-        >
-          <svg className="w-6 h-6 text-white/20 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-          </svg>
-          <span className="text-sm text-white/30 group-hover:text-white/60 transition-colors">Open Camera Scanner</span>
-        </button>
-      )}
+      {/* Scanner card */}
+      <div className="bg-[#111] rounded-2xl border border-white/[0.06] overflow-hidden">
 
-      {/* Scanner container  rendered when open */}
-      {cameraOpen && (
-        <div className="bg-[#111] rounded-2xl border border-white/[0.06] overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
-            <span className="text-sm text-white/50 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Camera active  point at QR code
-            </span>
+        {/*
+          The QR reader div MUST have real pixel dimensions when scanner.start()
+          is called. We keep it in the DOM at all times with a fixed min-height,
+          and place a placeholder overlay on top when the camera is not open.
+        */}
+        <div className="relative">
+          {/* Always-mounted scanner div */}
+          <div
+            id={QR_DIV_ID}
+            className="w-full"
+            style={{ minHeight: cameraOpen ? 320 : 0, overflow: "hidden" }}
+          />
+
+          {/* Placeholder overlay  shown when camera not open */}
+          {!cameraOpen && (
+            <div className="flex flex-col items-center justify-center py-14 px-6">
+              <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-white/15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </div>
+              <p className="text-sm text-white/25 mb-5 text-center">
+                Point your camera at the ticket QR code to verify
+              </p>
+              <button
+                onClick={startCamera}
+                disabled={httpsWarning}
+                className="bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-black text-sm font-semibold px-7 py-2.5 rounded-xl transition-colors cursor-pointer"
+              >
+                Open Camera
+              </button>
+            </div>
+          )}
+
+          {/* Loading spinner  camera requested but not live yet */}
+          {cameraOpen && !cameraLive && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-7 h-7 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
+                <p className="text-xs text-white/40">Starting camera</p>
+              </div>
+            </div>
+          )}
+
+          {/* Camera live indicator + close button */}
+          {cameraOpen && cameraLive && (
+            <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-20">
+              <span className="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm text-xs text-white/60 px-3 py-1.5 rounded-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Scanning
+              </span>
+              <button
+                onClick={stopCamera}
+                className="bg-black/50 backdrop-blur-sm text-white/60 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Manual input divider */}
+        <div className="flex items-center gap-3 px-5 py-3 border-t border-white/[0.04]">
+          <div className="flex-1 h-px bg-white/[0.05]" />
+          <span className="text-[11px] text-white/15 uppercase tracking-wider">or enter manually</span>
+          <div className="flex-1 h-px bg-white/[0.05]" />
+        </div>
+
+        {/* Manual input */}
+        <form onSubmit={handleManualSubmit} className="px-5 pb-5">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={manualInput}
+              onChange={(e) => setManualInput(e.target.value.toUpperCase())}
+              placeholder="NNY2026-0001"
+              className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/15 focus:outline-none focus:border-amber-500/30 transition-colors font-mono"
+            />
             <button
-              onClick={closeCamera}
-              className="text-xs text-white/30 hover:text-white transition-colors cursor-pointer"
+              type="submit"
+              disabled={!manualInput.trim() || scanState === "verifying"}
+              className="bg-white/[0.06] hover:bg-white/[0.10] disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-xl border border-white/[0.06] transition-all cursor-pointer"
             >
-              Close
+              Check
             </button>
           </div>
-          {/* html5-qrcode mounts here */}
-          <div id="qr-reader-container" className="w-full" />
-        </div>
-      )}
+        </form>
+      </div>
 
       {/* Verifying spinner */}
       {scanState === "verifying" && (
@@ -302,7 +383,7 @@ export default function AdminVerifyPage() {
 
           {/* Ticket details */}
           {result.ticket && (
-            <div className="border-t border-white/[0.06] px-5 py-4 space-y-2">
+            <div className="border-t border-white/[0.06] px-5 py-4 space-y-2.5">
               <DetailRow label="Attendee" value={result.ticket.holderName} />
               {result.ticket.holderEmail && (
                 <DetailRow label="Email" value={result.ticket.holderEmail} />
@@ -316,43 +397,20 @@ export default function AdminVerifyPage() {
           <div className="border-t border-white/[0.06] px-5 py-3 flex gap-3">
             <button
               onClick={resetScan}
-              className="text-sm text-white/40 hover:text-white transition-colors cursor-pointer"
+              className="text-sm text-white/35 hover:text-white transition-colors cursor-pointer"
             >
-              Clear
+              Dismiss
             </button>
             <span className="text-white/10"></span>
             <button
-              onClick={() => { resetScan(); openCamera(); }}
-              className="text-sm text-amber-400/70 hover:text-amber-400 transition-colors cursor-pointer"
+              onClick={scanAgain}
+              className="text-sm text-amber-400/70 hover:text-amber-400 transition-colors cursor-pointer font-medium"
             >
-              Scan Next
+              Scan Next Ticket
             </button>
           </div>
         </div>
       )}
-
-      {/* Manual input  always visible */}
-      <div className="bg-[#111] rounded-2xl border border-white/[0.06] px-5 py-4">
-        <p className="text-[11px] text-white/20 uppercase tracking-wider mb-3">Manual Entry</p>
-        <form onSubmit={handleManualSubmit}>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={manualInput}
-              onChange={(e) => setManualInput(e.target.value.toUpperCase())}
-              placeholder="NNY2026-0001"
-              className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-amber-500/30 transition-colors font-mono"
-            />
-            <button
-              type="submit"
-              disabled={!manualInput.trim() || scanState === "verifying"}
-              className="bg-white/[0.06] hover:bg-white/[0.10] disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-xl border border-white/[0.06] transition-all cursor-pointer"
-            >
-              Check
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }
