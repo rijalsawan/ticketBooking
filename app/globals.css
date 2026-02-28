@@ -1,26 +1,266 @@
 @import "tailwindcss";
 
+/* ── Nepali New Year Brand Colors ─────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #080808;
+  --foreground: #e8e0d8;
+
+  /* Nepal flag crimson */
+  --crimson: #c0392b;
+  --crimson-dark: #8e1a0e;
+  --crimson-light: #e74c3c;
+
+  /* Accent gold / amber */
+  --gold: #d97706;
+  --gold-light: #fbbf24;
+
+  /* Nepal flag blue */
+  --nepal-blue: #003893;
+
+  /* Dark surface tones */
+  --surface-0: #080808;
+  --surface-1: #0e0e0e;
+  --surface-2: #141414;
+  --surface-3: #1a1a1a;
+  --surface-4: #222222;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-crimson: var(--crimson);
+  --color-crimson-dark: var(--crimson-dark);
+  --color-crimson-light: var(--crimson-light);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-nepal-blue: var(--nepal-blue);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ── Base styles ──────────────────────────────────────────────────────────── */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Custom scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #080808; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #f59e0b, #c0392b);
+  border-radius: 3px;
+}
+
+/* ── Gradient text ────────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #f59e0b 0%, #ea580c 50%, #dc2626 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Animated gradient text - sweeping shimmer ────────────────────────────── */
+.gradient-text-animated {
+  background: linear-gradient(
+    90deg,
+    #fbbf24 0%,
+    #f97316 20%,
+    #dc2626 40%,
+    #f97316 60%,
+    #fbbf24 80%,
+    #f97316 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-sweep 4s ease-in-out infinite;
+}
+
+@keyframes gradient-sweep {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Modal form fade+slide transition ─────────────────────────────────────── */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Text reveal animation ────────────────────────────────────────────────── */
+.text-reveal {
+  display: inline-block;
+  overflow: hidden;
+}
+.text-reveal > span {
+  display: inline-block;
+  transform: translateY(110%);
+  animation: text-reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes text-reveal-up {
+  to { transform: translateY(0); }
+}
+
+/* ── Glow text pulse ──────────────────────────────────────────────────────── */
+.text-glow {
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(249, 115, 22, 0.15);
+  animation: text-glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes text-glow-pulse {
+  0%, 100% { text-shadow: 0 0 20px rgba(251, 191, 36, 0.3), 0 0 40px rgba(249, 115, 22, 0.15); }
+  50%      { text-shadow: 0 0 30px rgba(251, 191, 36, 0.5), 0 0 60px rgba(249, 115, 22, 0.25); }
+}
+
+/* ── Ticket hole punch effect ─────────────────────────────────────────────── */
+.ticket-punch::before,
+.ticket-punch::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  background: var(--surface-1);
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ticket-punch::before { left: -12px; }
+.ticket-punch::after  { right: -12px; }
+
+/* ── Loading spinner ──────────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 20px; height: 20px;
+  border: 3px solid rgba(245,158,11,0.2);
+  border-top-color: #f59e0b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Focus ring ───────────────────────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+/* ── Hero Animations ──────────────────────────────────────────────────────── */
+
+/* Slow drifting blob */
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(30px, -20px) scale(1.05); }
+  50%      { transform: translate(-20px, 30px) scale(0.95); }
+  75%      { transform: translate(10px, 15px) scale(1.02); }
+}
+.animate-drift {
+  animation: drift 20s ease-in-out infinite;
+}
+
+@keyframes drift-reverse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%      { transform: translate(-25px, 20px) scale(0.97); }
+  50%      { transform: translate(30px, -25px) scale(1.04); }
+  75%      { transform: translate(-15px, -10px) scale(1); }
+}
+.animate-drift-reverse {
+  animation: drift-reverse 25s ease-in-out infinite;
+}
+
+/* Slow pulse for ambient glow */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.7; transform: scale(1.08); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+
+/* Scroll dot in the mouse indicator */
+@keyframes scroll-dot {
+  0%   { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(8px); }
+}
+.animate-scroll-dot {
+  animation: scroll-dot 1.5s ease-in-out infinite;
+}
+
+/* ── Firework pop animation ───────────────────────────────────────────────── */
+@keyframes firework-pop {
+  0%   { transform: scale(0) rotate(0deg); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: scale(1) rotate(15deg); opacity: 0.6; }
+}
+
+.animate-firework {
+  animation: firework-pop 3s ease-out infinite;
+}
+
+.animate-firework-delay {
+  animation: firework-pop 3s ease-out 1.5s infinite;
+}
+
+/* ── Floating rise animation ──────────────────────────────────────────────── */
+@keyframes float-rise {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-15px) rotate(3deg); }
+}
+
+.animate-float {
+  animation: float-rise 6s ease-in-out infinite;
+}
+
+.animate-float-delay {
+  animation: float-rise 6s ease-in-out 2s infinite;
+}
+
+/* ── Glass card style ─────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+}
+
+/* ── Glow effects ─────────────────────────────────────────────────────────── */
+.glow-amber {
+  box-shadow: 0 0 60px -15px rgba(245, 158, 11, 0.3);
+}
+.glow-orange {
+  box-shadow: 0 0 60px -15px rgba(249, 115, 22, 0.3);
+}
+
+/* ── Smooth section reveal on scroll ──────────────────────────────────────── */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-up.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Shimmer for borders ──────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer-border {
+  background: linear-gradient(90deg, transparent 30%, rgba(245,158,11,0.15) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* ── Section divider gradient ─────────────────────────────────────────────── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.15), rgba(249, 115, 22, 0.15), transparent);
 }

@@ -1,0 +1,181 @@
+// Prisma schema for Nepali New Year Ticketing System
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // null for OAuth users
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth relations
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+
+  @@map("users")
+}
+
+// NextAuth required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Event {
+  id           String   @id @default(cuid())
+  title        String
+  slug         String   @unique
+  description  String   @db.Text
+  shortDesc    String
+  date         DateTime
+  doorsOpen    DateTime
+  endTime      DateTime
+  venue        String
+  address      String
+  city         String   @default("Winnipeg")
+  province     String   @default("MB")
+  country      String   @default("Canada")
+  imageUrl     String?
+  price        Int      // in cents (e.g., 1500 = $15.00)
+  totalTickets Int      @default(200)
+  soldTickets  Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders  Order[]
+  tickets Ticket[]
+
+  @@map("events")
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  userId                String?
+  guestEmail            String?
+  guestName             String?
+  guestPhone            String?
+  eventId               String
+  quantity              Int
+  subtotal              Int         // cents
+  tax                   Int         // cents (5% GST)
+  total                 Int         // cents
+  status                OrderStatus @default(PENDING)
+  stripeSessionId       String?     @unique
+  stripePaymentIntentId String?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  event   Event    @relation(fields: [eventId], references: [id])
+  tickets Ticket[]
+  payment Payment?
+
+  @@map("orders")
+}
+
+model Ticket {
+  id           String    @id @default(cuid())
+  orderId      String
+  eventId      String
+  ticketNumber String    @unique
+  qrCode       String    @db.Text
+  holderName   String?
+  holderEmail  String?
+  isUsed       Boolean   @default(false)
+  usedAt       DateTime?
+  createdAt    DateTime  @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@map("tickets")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String        @unique
+  stripePaymentId String?       @unique
+  amount          Int
+  currency        String        @default("cad")
+  status          PaymentStatus @default(PENDING)
+  refundId        String?
+  refundAmount    Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
