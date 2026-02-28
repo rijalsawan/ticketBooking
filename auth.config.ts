@@ -14,6 +14,19 @@ export const authConfig: NextAuthConfig = {
   },
   providers: [],
   callbacks: {
+    // Populate session.user.role from the JWT token so the role is
+    // available inside the `authorized` callback below.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    session({ session, token }: any) {
+      if (session.user && token?.role) {
+        session.user.role = token.role;
+      }
+      if (session.user && token?.id) {
+        session.user.id = token.id;
+      }
+      return session;
+    },
+
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isAdminRoute = nextUrl.pathname.startsWith("/admin");
@@ -26,7 +39,7 @@ export const authConfig: NextAuthConfig = {
         return NextResponse.redirect(loginUrl);
       }
 
-      if (isAdminRoute && auth?.user?.role !== "ADMIN") {
+      if (isAdminRoute && (auth?.user as { role?: string })?.role !== "ADMIN") {
         return NextResponse.redirect(new URL("/", nextUrl.origin));
       }
 
