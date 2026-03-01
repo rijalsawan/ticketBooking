@@ -31,8 +31,9 @@ export const authConfig: NextAuthConfig = {
       const isLoggedIn = !!auth?.user;
       const isAdminRoute = nextUrl.pathname.startsWith("/admin");
       const isTicketsRoute = nextUrl.pathname.startsWith("/tickets");
+      const isCheckoutRoute = nextUrl.pathname.startsWith("/checkout");
 
-      if (!isLoggedIn && (isAdminRoute || isTicketsRoute)) {
+      if (!isLoggedIn && (isAdminRoute || isTicketsRoute || isCheckoutRoute)) {
         const loginUrl = new URL("/", nextUrl.origin);
         loginUrl.searchParams.set("auth", "signin");
         loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);

@@ -1,15 +1,14 @@
-"use client";
+﻿"use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { checkoutSchema, type CheckoutInput } from "@/lib/validations";
 import { formatPrice, calculateOrderTotals } from "@/lib/utils";
-import { useAuthModal } from "@/components/auth/AuthModalContext";
 
 interface Props {
   eventId: string;
@@ -18,8 +17,8 @@ interface Props {
 }
 
 export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: Props) {
-  const { data: session } = useSession();
-  const { open: openAuthModal } = useAuthModal();
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [qty, setQty] = useState(1);
 
@@ -36,26 +35,31 @@ export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: P
   const quantity = watch("quantity") ?? 1;
   const { subtotal, tax, total } = calculateOrderTotals(pricePerTicket, quantity);
 
+  // While session is resolving, show a blank skeleton so the form never flashes
+  if (status === "loading") {
+    return (
+      <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 sm:p-8 animate-pulse space-y-5">
+        <div className="h-6 w-32 bg-white/5 rounded-lg" />
+        <div className="h-10 bg-white/5 rounded-xl" />
+        <div className="h-24 bg-white/5 rounded-xl" />
+        <div className="h-12 bg-white/5 rounded-xl" />
+      </div>
+    );
+  }
+
+  // Middleware handles the redirect — this is a safety net for edge cases
+  if (status === "unauthenticated") {
+    router.replace("/?auth=signin&callbackUrl=/checkout");
+    return null;
+  }
+
   const onSubmit = async (data: CheckoutInput) => {
     setLoading(true);
     try {
-      const payload = {
-        eventId,
-        quantity: data.quantity,
-        // Guest fields only if not logged in
-        ...(!session
-          ? {
-              guestName: data.guestName,
-              guestEmail: data.guestEmail,
-              guestPhone: data.guestPhone,
-            }
-          : {}),
-      };
-
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ eventId, quantity: data.quantity }),
       });
 
       const json = await res.json();
@@ -65,7 +69,6 @@ export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: P
         return;
       }
 
-      // Redirect to Stripe Checkout
       if (json.url) {
         window.location.href = json.url;
       }
@@ -79,7 +82,7 @@ export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: P
   return (
     <div className="bg-white/[0.03] rounded-2xl shadow border border-white/6 p-6 sm:p-8">
       <h2 className="text-xl font-bold text-white mb-6">
-        {session ? `Hi, ${session.user.name?.split(" ")[0]}!` : "Your Details"}
+        {session ? `Hi, ${session.user.name?.split(" ")[0]}!` : "Loading"}
       </h2>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -96,7 +99,7 @@ export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: P
               disabled={qty <= 1}
               aria-label="Decrease quantity"
             >
-              −
+              
             </button>
             <input
               type="hidden"
@@ -122,10 +125,10 @@ export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: P
           )}
         </div>
 
-        {/* Inline total preview */}
+        {/* Order total preview */}
         <div className="bg-white/[0.02] rounded-xl p-4 text-sm space-y-1.5 border border-white/6">
           <div className="flex justify-between text-white/50">
-            <span>{qty} × {formatPrice(pricePerTicket)}</span>
+            <span>{qty}  {formatPrice(pricePerTicket)}</span>
             <span>{formatPrice(subtotal)}</span>
           </div>
           <div className="flex justify-between text-white/30 text-xs">
@@ -138,66 +141,17 @@ export default function CheckoutForm({ eventId, pricePerTicket, maxQuantity }: P
           </div>
         </div>
 
-        {/* Guest fields – only shown when not logged in */}
-        {!session && (
-          <div className="space-y-4 pt-2">
-            <div className="flex items-center gap-2 text-xs text-white/30 mb-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Buying as guest – tickets will be emailed to you
-            </div>
-            <Input
-              label="Full name"
-              type="text"
-              required
-              placeholder="Name"
-              error={errors.guestName?.message}
-              {...register("guestName")}
-            />
-            <Input
-              label="Email address"
-              type="email"
-              required
-              placeholder="you@example.com"
-              hint="Tickets will be sent here"
-              error={errors.guestEmail?.message}
-              {...register("guestEmail")}
-            />
-            <Input
-              label="Phone (optional)"
-              type="tel"
-              placeholder="+1 (204) 555-0100"
-              error={errors.guestPhone?.message}
-              {...register("guestPhone")}
-            />
-          </div>
-        )}
-
         {/* Security note */}
         <p className="text-xs text-white/30 flex items-center gap-1.5">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
           Secured by Stripe. We never store card details.
         </p>
 
-        <Button
-          type="submit"
-          loading={loading}
-          size="lg"
-          className="w-full"
-        >
-          {loading ? "Redirecting to payment…" : `Pay ${formatPrice(total)} Securely`}
+        <Button type="submit" loading={loading} size="lg" className="w-full">
+          {loading ? "Redirecting to payment" : `Pay ${formatPrice(total)} Securely`}
         </Button>
-
-        {!session && (
-          <p className="text-center text-xs text-white/30">
-            Have an account?{" "}
-            <button type="button" onClick={() => openAuthModal("signin")} className="text-amber-400 hover:underline">
-              Sign in
-            </button>{" "}
-            to save your tickets
-          </p>
-        )}
       </form>
     </div>
   );

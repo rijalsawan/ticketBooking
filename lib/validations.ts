@@ -17,19 +17,8 @@ export const registerSchema = z.object({
 });
 
 // ── Checkout schemas ──────────────────────────────────────────────────────────
-export const guestCheckoutSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Valid email required"),
-  phone: z.string().optional(),
-  quantity: z.number().int().min(1).max(10),
-});
-
 export const checkoutSchema = z.object({
   quantity: z.number().int().min(1, "Select at least 1 ticket").max(10, "Max 10 tickets per order"),
-  // Guest fields – only required when not logged in
-  guestName: z.string().optional(),
-  guestEmail: z.string().email().optional(),
-  guestPhone: z.string().optional(),
 });
 
 // ── Admin schemas ─────────────────────────────────────────────────────────────
@@ -51,7 +40,6 @@ export const refundSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
-export type GuestCheckoutInput = z.infer<typeof guestCheckoutSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 export type UpdateEventInput = z.infer<typeof updateEventSchema>;
 export type RefundInput = z.infer<typeof refundSchema>;

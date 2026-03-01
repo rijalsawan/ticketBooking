@@ -14,14 +14,16 @@ import { z } from "zod";
 const schema = z.object({
   eventId: z.string().min(1),
   quantity: z.number().int().min(1).max(10),
-  guestName: z.string().optional(),
-  guestEmail: z.string().email().optional(),
-  guestPhone: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Sign in to purchase tickets" }, { status: 401 });
+    }
+
     const body = await req.json();
     const parsed = schema.safeParse(body);
 
@@ -29,17 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    const { eventId, quantity, guestName, guestEmail, guestPhone } = parsed.data;
-
-    // Guest checkout requires name + email
-    if (!session) {
-      if (!guestName || !guestEmail) {
-        return NextResponse.json(
-          { error: "Name and email are required for guest checkout" },
-          { status: 400 },
-        );
-      }
-    }
+    const { eventId, quantity } = parsed.data;
 
     // Fetch event
     const event = await prisma.event.findUnique({ where: { id: eventId } });
@@ -58,16 +50,13 @@ export async function POST(req: NextRequest) {
 
     const { subtotal, tax, total } = calculateOrderTotals(event.price, quantity);
 
-    const customerEmail = session?.user?.email ?? guestEmail;
-    const customerName = session?.user?.name ?? guestName;
+    const customerEmail = session.user.email;
+    const customerName = session.user.name ?? "Guest";
 
-    // Create pending order first
+    // Create pending order
     const order = await prisma.order.create({
       data: {
-        userId: session?.user?.id ?? null,
-        guestEmail: session ? null : guestEmail,
-        guestName: session ? null : guestName,
-        guestPhone: session ? null : guestPhone,
+        userId: session.user.id,
         eventId: event.id,
         quantity,
         subtotal,

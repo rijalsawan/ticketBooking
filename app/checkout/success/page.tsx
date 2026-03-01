@@ -31,7 +31,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-[#080808] px-4 py-12">
       <div className="w-full max-w-lg text-center">
-        {/* Success animation */}
+        {/* Success icon */}
         <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-500/5">
           <svg className="w-10 h-10 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
@@ -40,9 +40,19 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
         <Badge variant="success" className="mb-4 text-sm px-4 py-1">Payment Confirmed</Badge>
         <h1 className="text-3xl font-extrabold text-white mb-2">You&apos;re going!</h1>
-        <p className="text-white/50 mb-6 leading-relaxed">
-          Your tickets are confirmed. Check your email for your digital tickets and QR codes.
-        </p>
+
+        {/* Email sent notice */}
+        <div className="bg-amber-500/[0.06] border border-amber-500/15 rounded-xl px-4 py-3 mb-6 flex items-start gap-3 text-left">
+          <svg className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          <div>
+            <p className="text-sm text-amber-400 font-medium">QR codes sent to your email</p>
+            <p className="text-xs text-white/35 mt-1">
+              Check your inbox (and spam folder). Screenshot the QR codes — you&apos;ll need them at the door.
+            </p>
+          </div>
+        </div>
 
         {order && (
           <div className="bg-white/[0.03] rounded-2xl border border-white/6 shadow p-6 text-left mb-6 space-y-3">
@@ -80,7 +90,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
             href="/tickets"
             className="bg-linear-to-r from-amber-500 to-orange-600 text-white font-semibold px-6 py-3 rounded-full transition-all hover:shadow-lg hover:shadow-orange-500/20"
           >
-            View My Tickets & QR Codes
+            View My Tickets
           </Link>
           <Link
             href="/"

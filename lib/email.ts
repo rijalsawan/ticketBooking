@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import QRCode from "qrcode";
 import { EVENT_CONFIG, SITE_CONFIG } from "./config";
 
 // ── SMTP Transport ────────────────────────────────────────────────────────────
@@ -70,21 +71,36 @@ export interface TicketEmailData {
 export async function sendTicketConfirmationEmail(data: TicketEmailData) {
   const { to, name, tickets, orderId, quantity, total, appUrl } = data;
 
-  const ticketRows = tickets
-    .map(
-      (t) => `
+  // Generate a QR code PNG (base64 data URL) for each ticket
+  const ticketRows = await Promise.all(
+    tickets.map(async (t) => {
+      const qrDataUrl = await QRCode.toDataURL(t.ticketNumber, {
+        width: 180,
+        margin: 2,
+        errorCorrectionLevel: "M",
+        color: { dark: "#111111", light: "#ffffff" },
+      });
+      return `
       <div class="ticket-box">
+        <img src="${qrDataUrl}" width="150" height="150" alt="QR Code for ${t.ticketNumber}"
+             style="display:block;margin:0 auto 12px;border-radius:8px;" />
         <div class="ticket-number">${t.ticketNumber}</div>
         ${t.holderName ? `<div style="color:#666;margin-top:4px;">${t.holderName}</div>` : ""}
-        <div style="font-size:12px;color:#999;margin-top:8px;">Scan this number at the door or show your QR code</div>
-      </div>`,
-    )
-    .join("");
+        <div style="font-size:12px;color:#999;margin-top:8px;">
+          Screenshot this QR code and show it at the entrance
+        </div>
+      </div>`;
+    }),
+  );
+
+  const viewTicketsBtn = `<p style="text-align:center;margin-top:24px;">
+       <a href="${appUrl}/tickets" class="btn">View My Tickets Online</a>
+     </p>`;
 
   const body = `
     <h2 style="color:#c0392b;">🎟️ Your tickets are confirmed!</h2>
     <p>Hi ${name},</p>
-    <p>Thank you for purchasing tickets to the <strong>${EVENT_CONFIG.title}</strong>. 
+    <p>Thank you for purchasing tickets to the <strong>${EVENT_CONFIG.title}</strong>.
        We can't wait to celebrate with you!</p>
 
     <div class="detail-row"><span>📅 Date</span><span>${EVENT_CONFIG.date}</span></div>
@@ -93,16 +109,15 @@ export async function sendTicketConfirmationEmail(data: TicketEmailData) {
     <div class="detail-row"><span>🎟️ Tickets</span><span>${quantity}</span></div>
     <div class="detail-row"><span>💳 Total Paid</span><span>$${(total / 100).toFixed(2)} CAD</span></div>
 
-    <h3 style="color:#c0392b;margin-top:24px;">Your Ticket Numbers</h3>
-    ${ticketRows}
+    <h3 style="color:#c0392b;margin-top:24px;">Your QR Codes</h3>
+    <p style="font-size:13px;color:#666;">One QR code per ticket. Each code can only be scanned once.</p>
+    ${ticketRows.join("")}
 
-    <p style="text-align:center;margin-top:24px;">
-      <a href="${appUrl}/tickets" class="btn">View My Tickets & QR Codes</a>
-    </p>
+    ${viewTicketsBtn}
 
     <p style="font-size:13px;color:#666;margin-top:16px;">
       <strong>Order ID:</strong> ${orderId}<br/>
-      Please save this email. Show your QR code or ticket number at the entrance.
+      Please save this email — you&apos;ll need your QR code at the entrance.
     </p>
 
     <p style="font-size:13px;color:#666;">नयाँ वर्षको शुभकामना! 🙏 Happy Nepali New Year!</p>
@@ -112,7 +127,7 @@ export async function sendTicketConfirmationEmail(data: TicketEmailData) {
     from: process.env.EMAIL_FROM ?? `"${EVENT_CONFIG.title}" <noreply@nepaliparty.ca>`,
     to,
     subject: `Your Tickets – ${EVENT_CONFIG.title} 🎉`,
-    html: baseTemplate(body),
+    html: baseTemplate(ticketRows.length > 0 ? body : body),
   });
 }
 
