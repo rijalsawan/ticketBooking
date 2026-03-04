@@ -7,14 +7,15 @@ export const EVENT_CONFIG = {
   title: "Nepali New Year Celebration 2026",
   nepaliTitle: "नेपाली नयाँ वर्ष उत्सव २०८२",
   slug: "nepali-new-year-2026-winnipeg",
-  date: "April 14, 2026",
+  date: "April 13, 2026",
   nepaliDate: "बैशाख १, २०८२",
-  doorsOpen: "6:30 PM CST",
-  startTime: "7:00 PM CST",
+  doorsOpen: "8:00 PM CST",
+  startTime: "2:00 AM CST",
   endTime: "Midnight",
-  venue: "Manitoba Community Centre",
-  address: "123 Portage Ave, Winnipeg, MB R3B 0R4",
-  mapsUrl: "https://maps.google.com/?q=123+Portage+Ave+Winnipeg+MB",
+  venue: "Savanna Club",
+  address: "171 Dumoulin Street, Winnipeg, MB R3B 0R4",
+  mapsUrl: "https://maps.google.com/?q=171+Dumoulin+Street+Winnipeg+MB",
+  
   ticketPrice: 15, // CAD
   maxTicketsPerOrder: 10,
   totalCapacity: 200,
@@ -22,11 +23,10 @@ export const EVENT_CONFIG = {
   currency: "cad",
   highlights: [
     "🎵 Live traditional & modern Nepali music",
-    "🍛 Authentic Nepali food – dal bhat, sekuwa, momos & more",
+    "🍛 Authentic Nepali food",
     "💃 Cultural performances & dance",
     "🎮 Games & community activities",
     "🍺 Bar on-site at negotiated venue prices",
-    "👗 Best traditional outfit contest",
   ],
   faq: [
     {

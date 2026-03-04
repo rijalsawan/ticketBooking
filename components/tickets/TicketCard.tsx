@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { QRCodeSVG } from "qrcode.react";
-import { formatDate } from "@/lib/utils";
+import { formatEventDate, formatEventTime } from "@/lib/utils";
 
 interface TicketCardProps {
   ticket: {
@@ -11,10 +11,14 @@ interface TicketCardProps {
     isUsed: boolean;
     holderName?: string | null;
     holderEmail?: string | null;
+    ticketType?: string | null;
+    groupSize?: number | null;
+    groupMembers?: unknown;
   };
   event: {
     title: string;
     date: Date;
+    doorsOpen?: Date | null;
     venue: string;
     address: string;
   };
@@ -23,17 +27,28 @@ interface TicketCardProps {
 }
 
 export default function TicketCard({ ticket, event }: TicketCardProps) {
-  // Keep QR payload simple — just the ticket number.
-  // A plain short string produces a sparse, easy-to-scan QR code.
   const qrPayload = ticket.ticketNumber;
+  const isGroup = ticket.ticketType === "GROUP";
 
-  const handlePrint = () => {
-    window.print();
-  };
+  // Parse group members — stored as string[] or [{name}][] in DB
+  let members: string[] = [];
+  if (isGroup && ticket.groupMembers) {
+    try {
+      const raw = typeof ticket.groupMembers === "string"
+        ? JSON.parse(ticket.groupMembers)
+        : ticket.groupMembers;
+      if (Array.isArray(raw)) {
+        members = raw.map((m: unknown) =>
+          typeof m === "string" ? m : (m as { name?: string })?.name ?? ""
+        ).filter(Boolean);
+      }
+    } catch { /* ignore */ }
+  }
+
+  const handlePrint = () => window.print();
 
   return (
     <div className="group relative print:shadow-none print:bg-white">
-      {/* Main ticket container */}
       <div className="relative bg-[#111] rounded-2xl border border-white/[0.06] overflow-hidden transition-all duration-300 hover:border-white/[0.10] hover:shadow-[0_0_40px_rgba(245,158,11,0.03)]">
         <div className="flex flex-col sm:flex-row">
 
@@ -56,6 +71,11 @@ export default function TicketCard({ ticket, event }: TicketCardProps) {
                 >
                   {ticket.isUsed ? "Used" : "Valid"}
                 </span>
+                {isGroup && (
+                  <span className="ml-1 text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                    Group · {ticket.groupSize ?? (members.length || 1)} people
+                  </span>
+                )}
               </div>
               <span className="text-[11px] font-mono text-white/20 tracking-wider">
                 {ticket.ticketNumber}
@@ -77,8 +97,11 @@ export default function TicketCard({ ticket, event }: TicketCardProps) {
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[11px] text-white/25 mb-0.5 uppercase tracking-wide">Date & Time</p>
-                  <p className="text-sm text-white/60">{formatDate(event.date)}</p>
+                  <p className="text-[11px] text-white/25 mb-0.5 uppercase tracking-wide">Date &amp; Time</p>
+                  <p className="text-sm text-white/60">{formatEventDate(event.date)}</p>
+                  {event.doorsOpen && (
+                    <p className="text-xs text-white/35 mt-0.5">Doors {formatEventTime(event.doorsOpen)}</p>
+                  )}
                 </div>
               </div>
 
@@ -97,8 +120,26 @@ export default function TicketCard({ ticket, event }: TicketCardProps) {
                 </div>
               </div>
 
-              {/* Holder */}
-              {ticket.holderName && (
+              {/* Holder / Group members */}
+              {isGroup && members.length > 0 ? (
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center shrink-0">
+                    <svg className="w-4 h-4 text-amber-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] text-white/25 mb-1.5 uppercase tracking-wide">Group Members</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {members.map((name, i) => (
+                        <span key={i} className="text-xs bg-white/[0.05] border border-white/[0.08] text-white/60 px-2.5 py-1 rounded-lg">
+                          {name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : ticket.holderName ? (
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center shrink-0">
                     <svg className="w-4 h-4 text-amber-400/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,7 +151,7 @@ export default function TicketCard({ ticket, event }: TicketCardProps) {
                     <p className="text-sm text-white/60">{ticket.holderName}</p>
                   </div>
                 </div>
-              )}
+              ) : null}
             </div>
 
             {/* Footer */}
@@ -158,6 +199,11 @@ export default function TicketCard({ ticket, event }: TicketCardProps) {
             <p className="text-[10px] text-white/20 font-mono mt-2.5 text-center tracking-wider">
               {ticket.ticketNumber}
             </p>
+            {isGroup && (
+              <p className="text-[9px] text-amber-400/50 mt-1 text-center uppercase tracking-wider">
+                Group entry
+              </p>
+            )}
           </div>
         </div>
       </div>

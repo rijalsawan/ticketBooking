@@ -53,18 +53,28 @@ function stripEmoji(str: string) {
   return str.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\uFE0F]+\s*/u, "");
 }
 
-export default function EventDetails() {
+interface EventDetailsProps {
+  eventDate?: string;
+  doorsOpen?: string;
+  endTime?: string;
+  venue?: string;
+  address?: string;
+  price?: number; // cents
+  highlights?: string[];
+}
+
+export default function EventDetails({ eventDate, doorsOpen, endTime, venue, address, price, highlights }: EventDetailsProps) {
   const sectionRef = useRef<HTMLElement>(null);
   useReveal(sectionRef);
 
   const infoItems = [
-    { icon: <CalendarIcon className="w-5 h-5 text-amber-400" />, label: "Date", value: EVENT_CONFIG.date },
-    { icon: <ClockIcon className="w-5 h-5 text-amber-400" />, label: "Doors Open", value: EVENT_CONFIG.doorsOpen },
-    { icon: <PartyIcon className="w-5 h-5 text-amber-400" />, label: "Show Starts", value: EVENT_CONFIG.startTime },
-    { icon: <MoonIcon className="w-5 h-5 text-amber-400" />, label: "Ends", value: EVENT_CONFIG.endTime },
-    { icon: <LocationIcon className="w-5 h-5 text-amber-400" />, label: "Venue", value: EVENT_CONFIG.venue },
-    { icon: <MapIcon className="w-5 h-5 text-amber-400" />, label: "Address", value: EVENT_CONFIG.address },
-    { icon: <DollarIcon className="w-5 h-5 text-amber-400" />, label: "Admission", value: `$${EVENT_CONFIG.ticketPrice} CAD (+5% GST)` },
+    { icon: <CalendarIcon className="w-5 h-5 text-amber-400" />, label: "Date", value: eventDate ?? EVENT_CONFIG.date },
+    { icon: <ClockIcon className="w-5 h-5 text-amber-400" />, label: "Doors Open", value: doorsOpen ?? EVENT_CONFIG.doorsOpen },
+    
+    { icon: <MoonIcon className="w-5 h-5 text-amber-400" />, label: "Ends", value: endTime ?? EVENT_CONFIG.endTime },
+    { icon: <LocationIcon className="w-5 h-5 text-amber-400" />, label: "Venue", value: venue ?? EVENT_CONFIG.venue },
+    { icon: <MapIcon className="w-5 h-5 text-amber-400" />, label: "Address", value: address ?? EVENT_CONFIG.address },
+    { icon: <DollarIcon className="w-5 h-5 text-amber-400" />, label: "Admission", value: `$${price != null ? (price / 100).toFixed(0) : EVENT_CONFIG.ticketPrice} CAD (+5% GST)` },
     { icon: <DrinkIcon className="w-5 h-5 text-amber-400" />, label: "Bar", value: "On-site · pay as you go (negotiated prices)" },
   ];
 
@@ -153,7 +163,7 @@ export default function EventDetails() {
                 </div>
 
                 <ul className="space-y-4">
-                  {EVENT_CONFIG.highlights.map((h, i) => (
+                  {(highlights ?? EVENT_CONFIG.highlights).map((h, i) => (
                     <li key={h} className="flex items-start gap-3 group">
                       <span className="shrink-0 mt-0.5 text-amber-400/70 group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300">
                         {highlightIcons[i] ?? <MusicIcon className="w-5 h-5" />}

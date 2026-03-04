@@ -17,8 +17,20 @@ export default async function TicketsPage() {
   const orders = await prisma.order.findMany({
     where: { userId: session.user.id, status: "COMPLETED" },
     include: {
-      event: { select: { title: true, date: true, venue: true, address: true } },
-      tickets: true,
+      event: { select: { title: true, date: true, doorsOpen: true, venue: true, address: true } },
+      tickets: {
+        select: {
+          id: true,
+          ticketNumber: true,
+          qrCode: true,
+          isUsed: true,
+          holderName: true,
+          holderEmail: true,
+          ticketType: true,
+          groupSize: true,
+          groupMembers: true,
+        },
+      },
       payment: { select: { status: true, amount: true } },
     },
     orderBy: { createdAt: "desc" },

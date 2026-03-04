@@ -24,12 +24,14 @@ export function calculateTax(cents: number): number {
   return Math.round(cents * 0.05);
 }
 
-/** Calculate order totals */
-export function calculateOrderTotals(pricePerTicket: number, quantity: number) {
+/** Calculate order totals with optional discount */
+export function calculateOrderTotals(pricePerTicket: number, quantity: number, discountPercent = 0) {
   const subtotal = pricePerTicket * quantity;
-  const tax = calculateTax(subtotal);
-  const total = subtotal + tax;
-  return { subtotal, tax, total };
+  const discountAmount = discountPercent > 0 ? Math.round(subtotal * discountPercent / 100) : 0;
+  const discountedSubtotal = subtotal - discountAmount;
+  const tax = calculateTax(discountedSubtotal);
+  const total = discountedSubtotal + tax;
+  return { subtotal, discountAmount, tax, total };
 }
 
 /** Generate a human-readable ticket number */
@@ -43,12 +45,33 @@ export function truncate(str: string, max = 100): string {
   return str.length > max ? str.slice(0, max) + "…" : str;
 }
 
-/** Format a date to a readable string */
+/** Format a date to a readable string (local Winnipeg time — for order timestamps) */
 export function formatDate(date: Date | string): string {
   return new Intl.DateTimeFormat("en-CA", {
     dateStyle: "full",
     timeStyle: "short",
     timeZone: "America/Winnipeg",
+  }).format(new Date(date));
+}
+
+/** Format an event date in UTC (no tz shift — date was stored as UTC midnight) */
+export function formatEventDate(date: Date | string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(date));
+}
+
+/** Format an event time in UTC (e.g. doors open stored as UTC datetime) */
+export function formatEventTime(date: Date | string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "UTC",
   }).format(new Date(date));
 }
 

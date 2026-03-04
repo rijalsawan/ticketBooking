@@ -17,6 +17,10 @@ import {
 interface HeroProps {
   totalTickets: number;
   soldTickets: number;
+  eventDate?: string;
+  doorsOpen?: string;
+  venue?: string;
+  price?: number; // cents
 }
 
 /* Floating particle rendered on canvas */
@@ -81,7 +85,7 @@ function useParticles(canvasRef: React.RefObject<HTMLCanvasElement | null>) {
   }, [canvasRef]);
 }
 
-export default function Hero({ totalTickets, soldTickets }: HeroProps) {
+export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, venue, price }: HeroProps) {
   const remaining = seatsRemaining(totalTickets, soldTickets);
   const availability = availabilityLabel(totalTickets, soldTickets);
   const soldOut = remaining === 0;
@@ -218,9 +222,9 @@ export default function Hero({ totalTickets, soldTickets }: HeroProps) {
           }`}
         >
           {[
-            { icon: <CalendarIcon className="w-4 h-4 text-amber-400/70" />, text: EVENT_CONFIG.date },
-            { icon: <ClockIcon className="w-4 h-4 text-amber-400/70" />, text: `Doors ${EVENT_CONFIG.doorsOpen}` },
-            { icon: <LocationIcon className="w-4 h-4 text-amber-400/70" />, text: EVENT_CONFIG.venue },
+            { icon: <CalendarIcon className="w-4 h-4 text-amber-400/70" />, text: eventDate ?? EVENT_CONFIG.date },
+            { icon: <ClockIcon className="w-4 h-4 text-amber-400/70" />, text: `Doors ${doorsOpen ?? EVENT_CONFIG.doorsOpen}` },
+            { icon: <LocationIcon className="w-4 h-4 text-amber-400/70" />, text: venue ?? EVENT_CONFIG.venue },
           ].map(({ icon, text }) => (
             <div
               key={text}
@@ -240,7 +244,7 @@ export default function Hero({ totalTickets, soldTickets }: HeroProps) {
         >
           <div className="flex items-baseline gap-2">
             <span className="text-5xl sm:text-6xl font-bold text-white tracking-tight">
-              {formatPrice(EVENT_CONFIG.ticketPrice * 100)}
+              {formatPrice(price ?? EVENT_CONFIG.ticketPrice * 100)}
             </span>
             <span className="text-lg text-white/30 font-light">/ person</span>
           </div>

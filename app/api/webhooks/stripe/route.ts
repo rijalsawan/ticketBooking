@@ -105,22 +105,71 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { eventId: existing.eventId },
   });
 
-  // Create individual tickets
-  const ticketsData = Array.from({ length: quantity }, (_, i) => ({
-    orderId,
-    eventId: existing.eventId,
-    ticketNumber: generateTicketNumber(ticketsBefore + i + 1),
-    qrCode: JSON.stringify({
-      orderId,
-      ticketIndex: i + 1,
-      eventId: existing.eventId,
-      holderEmail: customerEmail,
-    }),
-    holderName: customerName,
-    holderEmail: customerEmail,
-  }));
+  const ticketType = session.metadata?.ticketType ?? "INDIVIDUAL";
+  const groupMembersRaw = session.metadata?.groupMembers ?? "";
 
-  await prisma.ticket.createMany({ data: ticketsData });
+  if (ticketType === "GROUP") {
+    // One ticket / QR for the entire group
+    let parsedMembers: string[] = [];
+    try {
+      parsedMembers = groupMembersRaw ? JSON.parse(groupMembersRaw) : [];
+    } catch {
+      parsedMembers = [];
+    }
+
+    const ticketNumber = generateTicketNumber(ticketsBefore + 1);
+    await prisma.ticket.create({
+      data: {
+        orderId,
+        eventId: existing.eventId,
+        ticketNumber,
+        qrCode: JSON.stringify({
+          orderId,
+          ticketIndex: 1,
+          eventId: existing.eventId,
+          holderEmail: customerEmail,
+          ticketType: "GROUP",
+        }),
+        holderName: customerName,
+        holderEmail: customerEmail,
+        ticketType: "GROUP",
+        groupSize: quantity,
+        groupMembers: parsedMembers.length ? parsedMembers : undefined,
+      },
+    });
+  } else {
+    // One ticket per person (individual)
+    const ticketsData = Array.from({ length: quantity }, (_, i) => ({
+      orderId,
+      eventId: existing.eventId,
+      ticketNumber: generateTicketNumber(ticketsBefore + i + 1),
+      qrCode: JSON.stringify({
+        orderId,
+        ticketIndex: i + 1,
+        eventId: existing.eventId,
+        holderEmail: customerEmail,
+      }),
+      holderName: customerName,
+      holderEmail: customerEmail,
+      ticketType: "INDIVIDUAL" as const,
+      groupSize: 1,
+    }));
+
+    await prisma.ticket.createMany({ data: ticketsData });
+  }
+
+  // Increment discount code usage if one was applied
+  const discountCodeStr = session.metadata?.discountCode ?? "";
+  if (discountCodeStr) {
+    try {
+      await prisma.discountCode.update({
+        where: { code: discountCodeStr },
+        data: { usedCount: { increment: 1 } },
+      });
+    } catch {
+      // non-fatal
+    }
+  }
 
   // Fetch created tickets for email
   const tickets = await prisma.ticket.findMany({

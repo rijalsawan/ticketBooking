@@ -11,6 +11,9 @@ interface TicketInfo {
   holderEmail: string | null;
   isUsed: boolean;
   usedAt: string | null;
+  ticketType?: string | null;
+  groupSize?: number | null;
+  groupMembers?: unknown;
   event: { title: string; date: string; venue: string; address: string };
 }
 
@@ -384,9 +387,37 @@ export default function AdminVerifyPage() {
           {/* Ticket details */}
           {result.ticket && (
             <div className="border-t border-white/[0.06] px-5 py-4 space-y-2.5">
-              <DetailRow label="Attendee" value={result.ticket.holderName} />
+              {result.ticket.ticketType === "GROUP" ? (
+                <>
+                  <DetailRow label="Type" value={`Group ticket · ${result.ticket.groupSize ?? "?"} people`} />
+                  {(() => {
+                    let members: string[] = [];
+                    try {
+                      const raw = result.ticket.groupMembers;
+                      const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+                      if (Array.isArray(parsed)) {
+                        members = parsed.map((m: unknown) =>
+                          typeof m === "string" ? m : (m as { name?: string })?.name ?? ""
+                        ).filter(Boolean);
+                      }
+                    } catch { /* ignore */ }
+                    return members.length > 0 ? (
+                      <div className="flex items-start justify-between text-sm gap-4">
+                        <span className="text-white/25 shrink-0">Members</span>
+                        <div className="flex flex-wrap gap-1.5 justify-end">
+                          {members.map((name, i) => (
+                            <span key={i} className="text-xs bg-white/[0.05] border border-white/[0.08] text-white/60 px-2 py-0.5 rounded-md">{name}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </>
+              ) : (
+                <DetailRow label="Attendee" value={result.ticket.holderName} />
+              )}
               {result.ticket.holderEmail && (
-                <DetailRow label="Email" value={result.ticket.holderEmail} />
+                <DetailRow label="Booked by" value={result.ticket.holderEmail} />
               )}
               <DetailRow label="Event" value={result.ticket.event.title} />
               <DetailRow label="Venue" value={result.ticket.event.venue} />

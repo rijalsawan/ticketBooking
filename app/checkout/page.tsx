@@ -37,7 +37,12 @@ export default async function CheckoutPage() {
           </p>
         </div>
 
-        {soldOut ? (
+        {!event ? (
+          <div className="text-center bg-red-500/5 border border-red-500/20 rounded-2xl p-12">
+            <p className="text-red-400 font-semibold mb-2">Event not available</p>
+            <p className="text-white/30 text-sm">The event could not be loaded. Please try again later.</p>
+          </div>
+        ) : soldOut ? (
           <div className="text-center bg-white/[0.03] rounded-2xl p-12 shadow border border-white/6">
             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,15 +59,15 @@ export default async function CheckoutPage() {
             {/* Checkout form – 3 cols */}
             <div className="lg:col-span-3">
               <CheckoutForm
-                eventId={event?.id ?? ""}
-                pricePerTicket={event?.price ?? EVENT_CONFIG.ticketPrice * 100}
+                eventId={event.id}
+                pricePerTicket={event.price}
                 maxQuantity={Math.min(remaining, EVENT_CONFIG.maxTicketsPerOrder)}
               />
             </div>
             {/* Order summary – 2 cols */}
             <div className="lg:col-span-2">
               <OrderSummary
-                pricePerTicket={event?.price ?? EVENT_CONFIG.ticketPrice * 100}
+                pricePerTicket={event.price}
                 remaining={remaining}
               />
             </div>

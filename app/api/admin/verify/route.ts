@@ -105,6 +105,9 @@ function formatTicketResponse(ticket: {
   holderEmail: string | null;
   isUsed: boolean;
   usedAt: Date | null;
+  ticketType: string;
+  groupSize: number;
+  groupMembers: unknown;
   event: { title: string; date: Date; venue: string; address: string };
   order: {
     status: string;
@@ -127,6 +130,9 @@ function formatTicketResponse(ticket: {
       null,
     isUsed: ticket.isUsed,
     usedAt: ticket.usedAt,
+    ticketType: ticket.ticketType,
+    groupSize: ticket.groupSize,
+    groupMembers: ticket.groupMembers ?? null,
     event: ticket.event,
   };
 }

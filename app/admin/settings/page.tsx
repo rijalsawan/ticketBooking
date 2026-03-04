@@ -1,58 +1,101 @@
 import { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import { EVENT_CONFIG } from "@/lib/config";
-import { formatDate } from "@/lib/utils";
+import EventEditorForm from "@/components/admin/EventEditorForm";
+import DiscountCodesManager from "@/components/admin/DiscountCodesManager";
 
 export const metadata: Metadata = { title: "Admin – Settings" };
 
-async function getEvent() {
-  return prisma.event.findUnique({ where: { slug: EVENT_CONFIG.slug } });
+async function getData() {
+  const [event, discountCodes, usageOrders] = await Promise.all([
+    prisma.event.findUnique({ where: { slug: EVENT_CONFIG.slug } }),
+    prisma.discountCode.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { orders: true } } },
+    }),
+    prisma.order.findMany({
+      where: { discountCodeId: { not: null }, status: "COMPLETED" },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      select: {
+        id: true,
+        createdAt: true,
+        discountAmount: true,
+        total: true,
+        quantity: true,
+        guestName: true,
+        guestEmail: true,
+        discountCode: { select: { code: true } },
+        user: { select: { name: true, email: true } },
+      },
+    }),
+  ]);
+  return { event, discountCodes, usageOrders };
 }
 
 export default async function AdminSettingsPage() {
-  const event = await getEvent();
+  const { event, discountCodes, usageOrders } = await getData();
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-3xl space-y-8">
       <div>
         <h1 className="text-2xl font-extrabold text-white">Settings</h1>
-        <p className="text-white/40 text-sm">Manage event settings and configuration.</p>
+        <p className="text-white/40 text-sm mt-1">Manage event details and discount codes.</p>
       </div>
 
-      {/* Event info (read-only – update via DB/seed for now) */}
-      <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 space-y-4">
-        <h2 className="font-semibold text-white text-lg">Current Event</h2>
-
-        {event ? (
-          <div className="space-y-3 text-sm">
-            {[
-              { label: "Title", value: event.title },
-              { label: "Date", value: formatDate(event.date) },
-              { label: "Venue", value: event.venue },
-              { label: "Address", value: event.address },
-              { label: "Price", value: `$${(event.price / 100).toFixed(2)} CAD` },
-              { label: "Total Capacity", value: event.totalTickets },
-              { label: "Tickets Sold", value: event.soldTickets },
-              { label: "Active", value: event.isActive ? "Yes" : "No" },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between border-b border-white/4 pb-2">
-                <span className="text-white/40 font-medium">{label}</span>
-                <span className="text-white">{String(value)}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-white/30 text-sm">Event not found in database. Run the seed: <code className="bg-white/5 px-2 py-0.5 rounded text-xs">npx prisma db seed</code></p>
-        )}
-
-        <div className="pt-2 text-xs text-white/40 bg-amber-500/5 border border-amber-500/10 rounded-lg p-3">
-          <strong>Tip:</strong> To update event details, edit <code>lib/config.ts</code> and re-run 
-          <code className="mx-1">npx prisma db seed</code>, or modify via Prisma Studio 
-          (<code>npx prisma studio</code>).
+      {/* Event Editor */}
+      {event ? (
+        <EventEditorForm
+          event={{
+            id: event.id,
+            title: event.title,
+            description: event.description ?? "",
+            date: event.date.toISOString(),
+            doorsOpen: (event as Record<string, unknown>).doorsOpen as string | null ?? null,
+            endTime: (event as Record<string, unknown>).endTime as string | null ?? null,
+            venue: event.venue,
+            address: event.address,
+            price: event.price,
+            totalTickets: event.totalTickets,
+            isActive: event.isActive,
+            highlights: Array.isArray((event as Record<string, unknown>).highlights)
+              ? (event as Record<string, unknown>).highlights as string[]
+              : [],
+          }}
+        />
+      ) : (
+        <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 text-sm text-white/40">
+          Event not found. Run <code className="bg-white/5 px-1.5 py-0.5 rounded text-xs">npx prisma db seed</code> to initialize it.
         </div>
-      </div>
+      )}
 
-      {/* Environment status */}
+      {/* Discount Codes */}
+      <DiscountCodesManager
+        initialCodes={discountCodes.map((dc) => ({
+          id: dc.id,
+          code: dc.code,
+          description: dc.description,
+          value: dc.value,
+          minGroupSize: dc.minGroupSize,
+          maxUses: dc.maxUses,
+          usedCount: dc.usedCount,
+          isActive: dc.isActive,
+          expiresAt: dc.expiresAt?.toISOString() ?? null,
+          _count: dc._count,
+        }))}
+        initialUsage={usageOrders.map((o) => ({
+          orderId: o.id,
+          code: o.discountCode?.code ?? "",
+          name: o.user?.name ?? o.guestName ?? "Guest",
+          email: o.user?.email ?? o.guestEmail ?? "",
+          discountAmount: o.discountAmount,
+          total: o.total,
+          quantity: o.quantity,
+          createdAt: o.createdAt.toISOString(),
+        }))}
+      />
+
+      {/* Environment Status */}
       <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 space-y-4">
         <h2 className="font-semibold text-white text-lg">Environment Status</h2>
         <div className="space-y-2 text-sm">
