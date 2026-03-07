@@ -63,6 +63,7 @@ export default function RootLayout({
             <AuthModalProvider>
               <Navbar />
               <main className="flex-1">{children}</main>
+              <Footer />
               <AuthModal />
             </AuthModalProvider>
           </Suspense>
@@ -75,6 +76,8 @@ export default function RootLayout({
             }}
           />
         </SessionProvider>
+
+        <Analytics />
 
         {/* Google Analytics */}
         {process.env.NEXT_PUBLIC_GA_ID && (

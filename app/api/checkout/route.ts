@@ -129,7 +129,6 @@ export async function POST(req: NextRequest) {
     // Stripe Checkout Session – pass the full order total as a single line item
     const stripeSession = await stripe.checkout.sessions.create({
       mode: "payment",
-      payment_method_types: ["card"],
       customer_email: customerEmail ?? undefined,
       line_items: [
         {

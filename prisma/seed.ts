@@ -57,10 +57,10 @@ Dress in your finest daura-suruwal, sari, or party outfit and get ready to celeb
 Venue is fully accessible. Free parking available.`,
         shortDesc:
           "Celebrate Nepali New Year 2082 BS with the Winnipeg Nepali community – food, music, culture, and more!",
-        // April 14, 2026
-        date: new Date("2026-04-14T19:00:00-05:00"),
-        doorsOpen: new Date("2026-04-14T18:30:00-05:00"),
-        endTime: new Date("2026-04-15T00:00:00-05:00"),
+        // April 13, 2026
+        date: new Date("2026-04-13T19:00:00-05:00"),
+        doorsOpen: new Date("2026-04-13T18:30:00-05:00"),
+        endTime: new Date("2026-04-14T00:00:00-05:00"),
         venue: "Manitoba Community Centre",
         address: "123 Portage Ave",
         city: "Winnipeg",

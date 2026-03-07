@@ -7,8 +7,8 @@ export const EVENT_CONFIG = {
   title: "Nepali New Year Celebration 2026",
   nepaliTitle: "नेपाली नयाँ वर्ष उत्सव २०८२",
   slug: "nepali-new-year-2026-winnipeg",
-  date: "April 13, 2026",
-  nepaliDate: "बैशाख १, २०८२",
+  date: "April 12, 2026",
+  nepaliDate: "बैशाख १, २०८३",
   doorsOpen: "8:00 PM CST",
   startTime: "2:00 AM CST",
   endTime: "Midnight",
@@ -31,7 +31,7 @@ export const EVENT_CONFIG = {
   faq: [
     {
       q: "What is Nepali New Year?",
-      a: "Nepali New Year (Nava Varsha) marks the first day of Baisakh, the first month of the Bikram Sambat calendar. In 2026, it falls on April 14, beginning year 2082 BS.",
+      a: "Nepali New Year (Nava Varsha) marks the first day of Baisakh, the first month of the Bikram Sambat calendar. In 2026, we celebrate on April 13, beginning year 2083 BS.",
     },
     {
       q: "Is this event family-friendly?",
@@ -43,7 +43,7 @@ export const EVENT_CONFIG = {
     },
     {
       q: "Can I get a refund?",
-      a: "Refunds are available up to 7 days before the event (April 7, 2026). Contact us after purchase for assistance.",
+      a: "Refunds are available up to 7 days before the event (April 6, 2026). Contact us after purchase for assistance.",
     },
     {
       q: "What should I wear?",
