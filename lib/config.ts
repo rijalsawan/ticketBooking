@@ -14,7 +14,7 @@ export const EVENT_CONFIG = {
   endTime: "Midnight",
   venue: "Savanna Club",
   address: "171 Dumoulin Street, Winnipeg, MB R3B 0R4",
-  mapsUrl: "https://maps.google.com/?q=171+Dumoulin+Street+Winnipeg+MB",
+  mapsUrl: "https://maps.google.com/?q=625+Portage+Avenue+Winnipeg+MB",
   
   ticketPrice: 15, // CAD
   maxTicketsPerOrder: 10,
