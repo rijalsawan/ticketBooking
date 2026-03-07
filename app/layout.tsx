@@ -10,6 +10,7 @@ import Script from "next/script";
 import { Suspense } from "react";
 import { AuthModalProvider } from "@/components/auth/AuthModalContext";
 import AuthModal from "@/components/auth/AuthModal";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   metadataBase: new URL(SITE_CONFIG.url),
 };
+
 
 export default function RootLayout({
   children,
