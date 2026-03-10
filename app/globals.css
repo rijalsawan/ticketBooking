@@ -162,6 +162,7 @@ body {
 }
 .animate-drift {
   animation: drift 20s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes drift-reverse {
@@ -172,6 +173,7 @@ body {
 }
 .animate-drift-reverse {
   animation: drift-reverse 25s ease-in-out infinite;
+  will-change: transform;
 }
 
 /* Slow pulse for ambient glow */
@@ -181,6 +183,7 @@ body {
 }
 .animate-pulse-slow {
   animation: pulse-slow 8s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 /* Scroll dot in the mouse indicator */
@@ -219,6 +222,12 @@ body {
 
 .animate-float-delay {
   animation: float-rise 6s ease-in-out 2s infinite;
+}
+
+/* Optimized hero text transition — only animate opacity & transform for GPU compositing */
+.hero-fade-in {
+  transition-property: opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Glass card style ─────────────────────────────────────────────────────── */
