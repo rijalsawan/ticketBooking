@@ -7,34 +7,18 @@ import DiscountCodesManager from "@/components/admin/DiscountCodesManager";
 export const metadata: Metadata = { title: "Admin – Settings" };
 
 async function getData() {
-  const [event, discountCodes, usageOrders] = await Promise.all([
+  const [event, discountCodes] = await Promise.all([
     prisma.event.findUnique({ where: { slug: EVENT_CONFIG.slug } }),
     prisma.discountCode.findMany({
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { orders: true } } },
     }),
-    prisma.order.findMany({
-      where: { discountCodeId: { not: null }, status: "COMPLETED" },
-      orderBy: { createdAt: "desc" },
-      take: 100,
-      select: {
-        id: true,
-        createdAt: true,
-        discountAmount: true,
-        total: true,
-        quantity: true,
-        guestName: true,
-        guestEmail: true,
-        discountCode: { select: { code: true } },
-        user: { select: { name: true, email: true } },
-      },
-    }),
   ]);
-  return { event, discountCodes, usageOrders };
+  return { event, discountCodes };
 }
 
 export default async function AdminSettingsPage() {
-  const { event, discountCodes, usageOrders } = await getData();
+  const { event, discountCodes } = await getData();
 
   return (
     <div className="max-w-3xl space-y-8">
@@ -82,16 +66,6 @@ export default async function AdminSettingsPage() {
           isActive: dc.isActive,
           expiresAt: dc.expiresAt?.toISOString() ?? null,
           _count: dc._count,
-        }))}
-        initialUsage={usageOrders.map((o) => ({
-          orderId: o.id,
-          code: o.discountCode?.code ?? "",
-          name: o.user?.name ?? o.guestName ?? "Guest",
-          email: o.user?.email ?? o.guestEmail ?? "",
-          discountAmount: o.discountAmount,
-          total: o.total,
-          quantity: o.quantity,
-          createdAt: o.createdAt.toISOString(),
         }))}
       />
 
