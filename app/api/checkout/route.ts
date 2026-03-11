@@ -1,10 +1,8 @@
 /**
  * POST /api/checkout
- * Creates a Stripe Checkout Session – supports individual and group tickets,
- * and optional discount codes.
+ * Creates a Stripe Checkout Session – guest checkout (no auth required).
  */
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { EVENT_CONFIG, SITE_CONFIG } from "@/lib/config";
@@ -17,16 +15,13 @@ const schema = z.object({
   ticketType: z.enum(["INDIVIDUAL", "GROUP"]).default("INDIVIDUAL"),
   groupMembers: z.array(z.object({ name: z.string().min(1) })).optional(),
   discountCode: z.string().optional(),
+  guestName: z.string().min(1, "Name is required"),
+  guestEmail: z.string().email("Valid email is required"),
+  guestPhone: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Sign in to purchase tickets" }, { status: 401 });
-    }
-
     const body = await req.json();
     const parsed = schema.safeParse(body);
 
@@ -35,13 +30,15 @@ export async function POST(req: NextRequest) {
       const msg = firstIssue
         ? `${firstIssue.path.join(".") || "input"}: ${firstIssue.message}`
         : "Invalid input";
-      console.error("[CHECKOUT] Validation failed:", parsed.error.issues);
       return NextResponse.json({ error: msg }, { status: 400 });
     }
 
-    const { eventId, quantity, ticketType, groupMembers, discountCode } = parsed.data;
+    const {
+      eventId, quantity, ticketType, groupMembers, discountCode,
+      guestName, guestEmail, guestPhone,
+    } = parsed.data;
 
-    // Validate group ticket – must have names for all members
+    // Validate group ticket
     if (ticketType === "GROUP") {
       if (!groupMembers || groupMembers.length !== quantity) {
         return NextResponse.json(
@@ -99,13 +96,9 @@ export async function POST(req: NextRequest) {
       discountPercent,
     );
 
-    const customerEmail = session.user.email;
-    const customerName = session.user.name ?? "Guest";
-
-    // Create pending order
+    // Create pending order (guest fields)
     const order = await prisma.order.create({
       data: {
-        userId: session.user.id,
         eventId: event.id,
         quantity,
         subtotal,
@@ -114,10 +107,13 @@ export async function POST(req: NextRequest) {
         discountAmount,
         discountCodeId: discountCodeRecord?.id ?? null,
         status: "PENDING",
+        guestName,
+        guestEmail,
+        guestPhone: guestPhone ?? null,
       },
     });
 
-    // Stringify group member names for Stripe metadata (500 char limit per value)
+    // Stringify group member names for Stripe metadata
     const membersJson =
       ticketType === "GROUP" && groupMembers
         ? JSON.stringify(groupMembers.map((m) => m.name))
@@ -126,10 +122,9 @@ export async function POST(req: NextRequest) {
     const discountLabel =
       discountPercent > 0 ? ` · ${discountCodeRecord!.code} (${discountPercent}% off)` : "";
 
-    // Stripe Checkout Session – pass the full order total as a single line item
     const stripeSession = await stripe.checkout.sessions.create({
       mode: "payment",
-      customer_email: customerEmail ?? undefined,
+      customer_email: guestEmail,
       line_items: [
         {
           price_data: {
@@ -138,7 +133,7 @@ export async function POST(req: NextRequest) {
               name: `${event.title}${discountLabel}`,
               description: `${quantity} ${ticketType === "GROUP" ? "group " : ""}ticket(s)`,
             },
-            unit_amount: total, // total already includes tax, applied for whole order
+            unit_amount: total,
           },
           quantity: 1,
         },
@@ -148,8 +143,8 @@ export async function POST(req: NextRequest) {
         eventId: event.id,
         quantity: String(quantity),
         ticketType,
-        customerName: customerName ?? "",
-        customerEmail: customerEmail ?? "",
+        customerName: guestName,
+        customerEmail: guestEmail,
         discountCode: discountCodeRecord?.code ?? "",
         discountPercent: String(discountPercent),
         groupMembers: membersJson,
@@ -170,3 +165,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+

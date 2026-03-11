@@ -26,8 +26,8 @@ export default async function AdminTicketsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-extrabold text-white">All Tickets</h1>
-        <p className="text-white/40 text-sm">
+        <h1 className="text-2xl font-bold text-foreground">All Tickets</h1>
+        <p className="text-muted-foreground text-sm">
           {total} issued · {used} checked in · {total - used} remaining
         </p>
       </div>
@@ -39,21 +39,21 @@ export default async function AdminTicketsPage() {
           { label: "Checked In", value: used, color: "text-green-400", bg: "bg-green-500/10" },
           { label: "Remaining", value: total - used, color: "text-blue-400", bg: "bg-blue-500/10" },
         ].map(({ label, value, color, bg }) => (
-          <div key={label} className="bg-white/[0.03] rounded-2xl border border-white/6 p-5 text-center">
-            <div className={`${bg} w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-2`}>
+          <div key={label} className="bg-card rounded-md border border-border p-5 text-center">
+            <div className={`${bg} w-10 h-10 rounded-md flex items-center justify-center mx-auto mb-2`}>
               <div className={`w-3 h-3 rounded-full ${bg}`} />
             </div>
-            <p className={`text-2xl font-extrabold mt-1 ${color}`}>{value}</p>
-            <p className="text-xs text-white/30 mt-0.5">{label}</p>
+            <p className={`text-2xl font-bold mt-1 ${color}`}>{value}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Tickets table */}
-      <div className="bg-white/[0.03] rounded-2xl border border-white/6 overflow-hidden">
+      <div className="bg-card rounded-md border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-white/[0.02] text-xs text-white/40 uppercase tracking-wider">
+            <thead className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3 text-left">Ticket #</th>
                 <th className="px-4 py-3 text-left">Holder</th>
@@ -61,18 +61,18 @@ export default async function AdminTicketsPage() {
                 <th className="px-4 py-3 text-left">Checked In</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-border">
               {tickets.map((ticket) => {
                 const name = ticket.order.user?.name ?? ticket.order.guestName ?? "Guest";
                 const email = ticket.order.user?.email ?? ticket.order.guestEmail ?? "—";
                 return (
-                  <tr key={ticket.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 font-mono text-amber-400 font-semibold text-xs">
+                  <tr key={ticket.id} className="hover:bg-secondary/50">
+                    <td className="px-4 py-3 font-mono text-accent font-semibold text-xs">
                       {ticket.ticketNumber}
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium text-white">{name}</p>
-                      <p className="text-xs text-white/30">{email}</p>
+                      <p className="font-medium text-foreground">{name}</p>
+                      <p className="text-xs text-muted-foreground">{email}</p>
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={ticket.order.status === "COMPLETED" ? "success" : "neutral"}>
@@ -83,7 +83,7 @@ export default async function AdminTicketsPage() {
                       {ticket.isUsed ? (
                         <span className="text-green-400 font-semibold text-xs">✓ Used</span>
                       ) : (
-                        <span className="text-white/30 text-xs">—</span>
+                        <span className="text-muted-foreground text-xs">—</span>
                       )}
                     </td>
                   </tr>
@@ -91,7 +91,7 @@ export default async function AdminTicketsPage() {
               })}
               {tickets.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="py-12 text-center text-white/30">
+                  <td colSpan={4} className="py-12 text-center text-muted-foreground">
                     No tickets issued yet
                   </td>
                 </tr>

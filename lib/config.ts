@@ -5,7 +5,7 @@
 
 export const EVENT_CONFIG = {
   title: "Nepali New Year Celebration 2026",
-  nepaliTitle: "नेपाली नयाँ वर्ष उत्सव २०८२",
+  nepaliTitle: "नेपाली नयाँ वर्ष उत्सव २०८३",
   slug: "nepali-new-year-2026-winnipeg",
   date: "April 12, 2026",
   nepaliDate: "बैशाख १, २०८३",
@@ -13,7 +13,7 @@ export const EVENT_CONFIG = {
   startTime: "2:00 AM CST",
   endTime: "Midnight",
   venue: "Savanna Club",
-  address: "171 Dumoulin Street, Winnipeg, MB R3B 0R4",
+  address: "625 Portage Avenue, Winnipeg, MB",
   mapsUrl: "https://maps.google.com/?q=625+Portage+Avenue+Winnipeg+MB",
   
   ticketPrice: 15, // CAD
@@ -59,7 +59,7 @@ export const EVENT_CONFIG = {
 export const SITE_CONFIG = {
   name: "Nepali New Year Winnipeg",
   description:
-    "Buy tickets for the Nepali New Year 2082 BS celebration in Winnipeg, Manitoba, Canada. Join the community for food, music, and culture.",
+    "Buy tickets for the Nepali New Year 2083 BS celebration in Winnipeg, Manitoba, Canada. Join the community for food, music, and culture.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ogImage: "/og-image.jpg",
   contactEmail: "rijalsawan@gmail.com",

@@ -1,5 +1,6 @@
 import Hero from "@/components/landing/Hero";
 import EventDetails from "@/components/landing/EventDetails";
+import FAQ from "@/components/landing/FAQ";
 import prisma from "@/lib/prisma";
 import { EVENT_CONFIG } from "@/lib/config";
 

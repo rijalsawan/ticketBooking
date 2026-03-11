@@ -43,7 +43,7 @@ async function main() {
       data: {
         title: "Nepali New Year Celebration 2026",
         slug: eventSlug,
-        description: `Join the Winnipeg Nepali community for a colourful celebration of Nepali New Year 2082 BS (Bisket Jatra / Navavarsha)!
+        description: `Join the Winnipeg Nepali community for a colourful celebration of Nepali New Year 2083 BS (Bisket Jatra / Navavarsha)!
 
 The evening features:
 • Traditional & modern Nepali music and cultural performances
@@ -56,7 +56,7 @@ Dress in your finest daura-suruwal, sari, or party outfit and get ready to celeb
 
 Venue is fully accessible. Free parking available.`,
         shortDesc:
-          "Celebrate Nepali New Year 2082 BS with the Winnipeg Nepali community – food, music, culture, and more!",
+          "Celebrate Nepali New Year 2083 BS with the Winnipeg Nepali community – food, music, culture, and more!",
         // April 13, 2026
         date: new Date("2026-04-13T19:00:00-05:00"),
         doorsOpen: new Date("2026-04-13T18:30:00-05:00"),

@@ -8,8 +8,7 @@ import Footer from "@/components/layout/Footer";
 import { SITE_CONFIG, EVENT_CONFIG } from "@/lib/config";
 import Script from "next/script";
 import { Suspense } from "react";
-import { AuthModalProvider } from "@/components/auth/AuthModalContext";
-import AuthModal from "@/components/auth/AuthModal";
+
 import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
@@ -26,10 +25,10 @@ export const metadata: Metadata = {
   description: SITE_CONFIG.description,
   keywords: [
     "Nepali New Year Winnipeg",
-    "Nava Varsha 2082",
+    "Nava Varsha 2083",
     "Nepali community Winnipeg",
     "Nepali event Manitoba",
-    "Baisakh 2082",
+    "Baisakh 2083",
     "Nepali party Winnipeg 2026",
   ],
   openGraph: {
@@ -60,19 +59,16 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col antialiased">
         <SessionProvider>
           <Suspense>
-            <AuthModalProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <AuthModal />
-            </AuthModalProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
           </Suspense>
           
           <Toaster
             position="top-right"
             toastOptions={{
-              style: { borderRadius: "8px", fontFamily: "var(--font-geist-sans)", background: "#1a1a1a", color: "#e8e0d8", border: "1px solid rgba(255,255,255,0.06)" },
-              success: { iconTheme: { primary: "#f59e0b", secondary: "#fff" } },
+              style: { borderRadius: "0.5rem", fontFamily: "var(--font-geist-sans)", background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" },
+              success: { iconTheme: { primary: "#f59e0b", secondary: "#000" } },
             }}
           />
         </SessionProvider>

@@ -23,8 +23,8 @@ export default async function AdminSettingsPage() {
   return (
     <div className="max-w-3xl space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white">Settings</h1>
-        <p className="text-white/40 text-sm mt-1">Manage event details and discount codes.</p>
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+        <p className="text-muted-foreground text-sm mt-1">Manage event details and discount codes.</p>
       </div>
 
       {/* Event Editor */}
@@ -48,8 +48,8 @@ export default async function AdminSettingsPage() {
           }}
         />
       ) : (
-        <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 text-sm text-white/40">
-          Event not found. Run <code className="bg-white/5 px-1.5 py-0.5 rounded text-xs">npx prisma db seed</code> to initialize it.
+        <div className="bg-card rounded-md border border-border p-6 text-sm text-muted-foreground">
+          Event not found. Run <code className="bg-secondary px-1.5 py-0.5 rounded text-xs">npx prisma db seed</code> to initialize it.
         </div>
       )}
 
@@ -70,8 +70,8 @@ export default async function AdminSettingsPage() {
       />
 
       {/* Environment Status */}
-      <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 space-y-4">
-        <h2 className="font-semibold text-white text-lg">Environment Status</h2>
+      <div className="bg-card rounded-md border border-border p-6 space-y-4">
+        <h2 className="font-semibold text-foreground text-lg">Environment Status</h2>
         <div className="space-y-2 text-sm">
           {[
             { label: "Database", key: "DATABASE_URL" },
@@ -82,8 +82,8 @@ export default async function AdminSettingsPage() {
           ].map(({ label, key }) => {
             const set = !!process.env[key];
             return (
-              <div key={key} className="flex justify-between items-center border-b border-white/4 pb-2">
-                <span className="text-white/40">{label}</span>
+              <div key={key} className="flex justify-between items-center border-b border-border pb-2">
+                <span className="text-muted-foreground">{label}</span>
                 <span className={set ? "text-green-400 font-semibold text-xs" : "text-red-400 text-xs font-semibold"}>
                   {set ? "✓ Configured" : "✗ Missing"}
                 </span>

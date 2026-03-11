@@ -51,8 +51,8 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-extrabold text-white">Dashboard</h1>
-        <p className="text-white/40 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground text-sm mt-1">
           Real-time overview of {event?.title ?? "event"} ticket sales
         </p>
       </div>
@@ -85,44 +85,44 @@ export default async function AdminDashboardPage() {
             bg: "bg-orange-500/10",
           },
         ].map(({ label, value, color, bg }) => (
-          <div key={label} className="bg-white/[0.03] rounded-2xl border border-white/6 p-5">
-            <div className={`${bg} w-10 h-10 rounded-xl flex items-center justify-center mb-3`}>
+          <div key={label} className="bg-card rounded-md border border-border p-5">
+            <div className={`${bg} w-10 h-10 rounded-md flex items-center justify-center mb-3`}>
               <div className={`w-4 h-4 rounded-full ${bg}`} />
             </div>
-            <p className="text-xs text-white/40 font-medium uppercase tracking-wide">{label}</p>
-            <p className={`text-2xl font-extrabold mt-1 ${color}`}>{value}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
+            <p className={`text-2xl font-bold mt-1 ${color}`}>{value}</p>
           </div>
         ))}
       </div>
 
       {/* Capacity bar */}
-      <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6">
+      <div className="bg-card rounded-md border border-border p-6">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-white">Ticket Availability</h3>
-          <span className="text-sm text-white/40">
+          <h3 className="font-semibold text-foreground">Ticket Availability</h3>
+          <span className="text-sm text-muted-foreground">
             {remaining} remaining of {event?.totalTickets}
           </span>
         </div>
-        <div className="bg-white/5 rounded-full h-4 overflow-hidden">
+        <div className="bg-secondary rounded-full h-4 overflow-hidden">
           <div
-            className="bg-linear-to-r from-amber-500 to-orange-600 h-4 rounded-full transition-all"
+            className="bg-accent h-4 rounded-full transition-all"
             style={{ width: `${percentSold}%` }}
           />
         </div>
-        <p className="text-xs text-white/30 mt-2">{percentSold}% sold</p>
+        <p className="text-xs text-muted-foreground mt-2">{percentSold}% sold</p>
       </div>
 
       {/* Recent orders table */}
-      <div className="bg-white/[0.03] rounded-2xl border border-white/6 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/6">
-          <h3 className="font-semibold text-white">Recent Orders</h3>
-          <Link href="/admin/orders" className="text-sm text-amber-400 hover:underline font-medium">
+      <div className="bg-card rounded-md border border-border overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h3 className="font-semibold text-foreground">Recent Orders</h3>
+          <Link href="/admin/orders" className="text-sm text-accent hover:underline font-medium">
             View all →
           </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-white/[0.02] text-xs text-white/40 uppercase tracking-wider">
+            <thead className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
               <tr>
                 <th className="px-4 py-3 text-left">Buyer</th>
                 <th className="px-4 py-3 text-left">Tickets</th>
@@ -130,19 +130,19 @@ export default async function AdminDashboardPage() {
                 <th className="px-4 py-3 text-left">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-border">
               {recentOrders.map((order) => {
                 const name = order.user?.name ?? order.guestName ?? "Guest";
                 const email = order.user?.email ?? order.guestEmail ?? "—";
                 return (
-                  <tr key={order.id} className="hover:bg-white/[0.02]">
+                  <tr key={order.id} className="hover:bg-secondary/50">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-white">{name}</p>
-                      <p className="text-xs text-white/30">{email}</p>
+                      <p className="font-medium text-foreground">{name}</p>
+                      <p className="text-xs text-muted-foreground">{email}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-amber-400">×{order.quantity}</p>
-                      <p className="text-xs text-white/30">
+                      <p className="font-semibold text-accent">×{order.quantity}</p>
+                      <p className="text-xs text-muted-foreground">
                         {order.tickets[0]?.ticketNumber ?? "–"}
                         {order.quantity > 1 ? ` +${order.quantity - 1}` : ""}
                       </p>
@@ -155,7 +155,7 @@ export default async function AdminDashboardPage() {
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/orders?q=${order.id}`}
-                        className="text-xs text-amber-400 hover:underline"
+                        className="text-xs text-accent hover:underline"
                       >
                         View
                       </Link>
@@ -165,7 +165,7 @@ export default async function AdminDashboardPage() {
               })}
               {recentOrders.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-white/30 text-sm">
+                  <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">
                     No orders yet
                   </td>
                 </tr>

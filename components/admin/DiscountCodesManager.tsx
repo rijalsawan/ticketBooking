@@ -116,12 +116,12 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
   return (
     <>
-    <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 space-y-5">
+    <div className="bg-card rounded-md border border-border p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-white text-lg">Discount Codes</h2>
-          <p className="text-white/40 text-xs mt-0.5">4-character codes — percentage off total.</p>
+          <h2 className="font-semibold text-foreground text-lg">Discount Codes</h2>
+          <p className="text-muted-foreground text-xs mt-0.5">4-character codes — percentage off total.</p>
         </div>
         <Button size="sm" onClick={() => setCreating((v) => !v)}>
           {creating ? "Cancel" : "+ New Code"}
@@ -130,12 +130,12 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
       {/* Create form */}
       {creating && (
-        <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 space-y-4">
-          <h3 className="text-sm font-semibold text-amber-400">New Discount Code</h3>
+        <div className="border border-accent/20 bg-accent/5 rounded-md p-4 space-y-4">
+          <h3 className="text-sm font-semibold text-accent">New Discount Code</h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {/* Code */}
             <div className="sm:col-span-1">
-              <label className="block text-xs font-medium text-white/50 mb-1">Code (4 chars)</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Code (4 chars)</label>
               <Input
                 value={form.code}
                 maxLength={4}
@@ -147,7 +147,7 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
             {/* Discount % */}
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Discount %</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Discount %</label>
               <Input
                 type="number"
                 min="1"
@@ -160,7 +160,7 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
             {/* Min group size */}
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Min qty</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Min qty</label>
               <Input
                 type="number"
                 min="1"
@@ -172,7 +172,7 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
             {/* Max uses */}
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Max uses</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Max uses</label>
               <Input
                 type="number"
                 min="1"
@@ -184,7 +184,7 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
             {/* Description */}
             <div className="col-span-2 sm:col-span-3">
-              <label className="block text-xs font-medium text-white/50 mb-1">Description</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
               <Input
                 value={form.description}
                 onChange={(e) => setField("description", e.target.value)}
@@ -194,12 +194,12 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
             {/* Expires at */}
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Expires (optional)</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Expires (optional)</label>
               <input
                 type="date"
                 value={form.expiresAt}
                 onChange={(e) => setField("expiresAt", e.target.value)}
-                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-amber-500/50 [color-scheme:dark]"
+                className="w-full rounded-md bg-transparent border border-border px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring [color-scheme:dark]"
               />
             </div>
           </div>
@@ -217,12 +217,12 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
 
       {/* Table */}
       {codes.length === 0 ? (
-        <p className="text-sm text-white/30 text-center py-6">No discount codes yet.</p>
+        <p className="text-sm text-muted-foreground text-center py-6">No discount codes yet.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-white/30 text-xs border-b border-white/6">
+              <tr className="text-muted-foreground text-xs border-b border-border">
                 <th className="text-left pb-2 font-medium">Code</th>
                 <th className="text-left pb-2 font-medium">Description</th>
                 <th className="text-center pb-2 font-medium">%</th>
@@ -232,18 +232,18 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
                 <th className="text-right pb-2 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/4">
+            <tbody className="divide-y divide-border">
               {codes.map((dc) => (
-                <tr key={dc.id} className="hover:bg-white/[0.02]">
+                <tr key={dc.id} className="hover:bg-secondary/50">
                   <td className="py-2.5 pr-3">
-                    <code className="text-amber-400 font-mono tracking-widest font-bold bg-amber-500/10 px-2 py-0.5 rounded">
+                    <code className="text-accent font-mono tracking-widest font-bold bg-accent/10 px-2 py-0.5 rounded">
                       {dc.code}
                     </code>
                   </td>
-                  <td className="py-2.5 pr-3 text-white/60 truncate max-w-[160px]">{dc.description}</td>
-                  <td className="py-2.5 text-center text-white font-semibold">{dc.value}%</td>
-                  <td className="py-2.5 text-center text-white/50">{dc.minGroupSize}</td>
-                  <td className="py-2.5 text-center text-white/50">
+                  <td className="py-2.5 pr-3 text-muted-foreground truncate max-w-[160px]">{dc.description}</td>
+                  <td className="py-2.5 text-center text-foreground font-semibold">{dc.value}%</td>
+                  <td className="py-2.5 text-center text-muted-foreground">{dc.minGroupSize}</td>
+                  <td className="py-2.5 text-center text-muted-foreground">
                     {dc.usedCount}{dc.maxUses ? `/${dc.maxUses}` : ""}
                   </td>
                   <td className="py-2.5 text-center">
@@ -255,21 +255,21 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => setViewingCode(dc)}
-                        className="text-xs px-2.5 py-1 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-colors"
+                        className="text-xs px-2.5 py-1 rounded-md border border-border text-muted-foreground hover:text-foreground hover:border-border transition-colors"
                       >
                         View
                       </button>
                       <button
                         onClick={() => handleToggle(dc.id, dc.isActive)}
                         disabled={togglingId === dc.id}
-                        className="text-xs px-2.5 py-1 rounded-lg border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-colors disabled:opacity-40"
+                        className="text-xs px-2.5 py-1 rounded-md border border-border text-muted-foreground hover:text-foreground hover:border-border transition-colors disabled:opacity-40"
                       >
                         {dc.isActive ? "Disable" : "Enable"}
                       </button>
                       <button
                         onClick={() => handleDelete(dc.id, dc.code)}
                         disabled={deletingId === dc.id}
-                        className="text-xs px-2.5 py-1 rounded-lg border border-red-500/20 text-red-400/70 hover:text-red-400 hover:border-red-400/40 transition-colors disabled:opacity-40"
+                        className="text-xs px-2.5 py-1 rounded-md border border-destructive/20 text-destructive/70 hover:text-destructive hover:border-destructive/40 transition-colors disabled:opacity-40"
                       >
                         Delete
                       </button>
@@ -290,20 +290,20 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
           onClick={() => setViewingCode(null)}
         >
           <div
-            className="bg-[#111] border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-5"
+            className="bg-card border border-border rounded-md p-6 w-full max-w-md shadow-2xl space-y-5"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal header */}
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Discount Code</p>
-                <code className="text-3xl font-black font-mono tracking-[0.2em] text-amber-400 bg-amber-500/10 px-4 py-2 rounded-xl block">
+                <p className="text-xs text-muted-foreground uppercase tracking-widest mb-1">Discount Code</p>
+                <code className="text-3xl font-black font-mono tracking-[0.2em] text-accent bg-accent/10 px-4 py-2 rounded-md block">
                   {viewingCode.code}
                 </code>
               </div>
               <button
                 onClick={() => setViewingCode(null)}
-                className="text-white/30 hover:text-white transition-colors text-xl leading-none mt-1"
+                className="text-muted-foreground hover:text-foreground transition-colors text-xl leading-none mt-1"
               >
                 ✕
               </button>
@@ -322,45 +322,45 @@ export default function DiscountCodesManager({ initialCodes }: Props) {
             {/* Details grid */}
             <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
               <div>
-                <dt className="text-white/40 text-xs mb-0.5">Discount</dt>
-                <dd className="text-white font-semibold text-lg">{viewingCode.value}% off</dd>
+                <dt className="text-muted-foreground text-xs mb-0.5">Discount</dt>
+                <dd className="text-foreground font-semibold text-lg">{viewingCode.value}% off</dd>
               </div>
               <div>
-                <dt className="text-white/40 text-xs mb-0.5">Min quantity</dt>
-                <dd className="text-white font-semibold text-lg">{viewingCode.minGroupSize}</dd>
+                <dt className="text-muted-foreground text-xs mb-0.5">Min quantity</dt>
+                <dd className="text-foreground font-semibold text-lg">{viewingCode.minGroupSize}</dd>
               </div>
               <div>
-                <dt className="text-white/40 text-xs mb-0.5">Times used</dt>
-                <dd className="text-white font-semibold text-lg">
+                <dt className="text-muted-foreground text-xs mb-0.5">Times used</dt>
+                <dd className="text-foreground font-semibold text-lg">
                   {viewingCode.usedCount}
                   {viewingCode.maxUses ? (
-                    <span className="text-white/40 font-normal text-sm"> / {viewingCode.maxUses} max</span>
+                    <span className="text-muted-foreground font-normal text-sm"> / {viewingCode.maxUses} max</span>
                   ) : (
-                    <span className="text-white/40 font-normal text-sm"> / unlimited</span>
+                    <span className="text-muted-foreground font-normal text-sm"> / unlimited</span>
                   )}
                 </dd>
               </div>
               <div>
-                <dt className="text-white/40 text-xs mb-0.5">Orders applied to</dt>
-                <dd className="text-white font-semibold text-lg">{viewingCode._count.orders}</dd>
+                <dt className="text-muted-foreground text-xs mb-0.5">Orders applied to</dt>
+                <dd className="text-foreground font-semibold text-lg">{viewingCode._count.orders}</dd>
               </div>
               <div className="col-span-2">
-                <dt className="text-white/40 text-xs mb-0.5">Description</dt>
-                <dd className="text-white/80">{viewingCode.description || <span className="text-white/30 italic">No description</span>}</dd>
+                <dt className="text-muted-foreground text-xs mb-0.5">Description</dt>
+                <dd className="text-foreground/80">{viewingCode.description || <span className="text-muted-foreground italic">No description</span>}</dd>
               </div>
               <div className="col-span-2">
-                <dt className="text-white/40 text-xs mb-0.5">Expires</dt>
-                <dd className="text-white/80">
+                <dt className="text-muted-foreground text-xs mb-0.5">Expires</dt>
+                <dd className="text-foreground/80">
                   {viewingCode.expiresAt
                     ? new Date(viewingCode.expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
-                    : <span className="text-white/30 italic">Never</span>}
+                    : <span className="text-muted-foreground italic">Never</span>}
                 </dd>
               </div>
             </dl>
 
             <button
               onClick={() => setViewingCode(null)}
-              className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-sm transition-colors"
+              className="w-full py-2.5 rounded-md bg-secondary hover:bg-secondary/80 text-muted-foreground hover:text-foreground text-sm transition-colors"
             >
               Close
             </button>

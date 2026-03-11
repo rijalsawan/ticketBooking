@@ -243,7 +243,7 @@ export default function Image() {
             display: "flex",
           }}
         >
-          नयाँ वर्ष २०८२
+          नयाँ वर्ष २०८३
         </div>
       </div>
     ),

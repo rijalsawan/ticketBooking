@@ -30,18 +30,14 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isAdminRoute = nextUrl.pathname.startsWith("/admin");
-      const isTicketsRoute = nextUrl.pathname.startsWith("/tickets");
-      const isCheckoutRoute = nextUrl.pathname.startsWith("/checkout");
 
-      if (!isLoggedIn && (isAdminRoute || isTicketsRoute || isCheckoutRoute)) {
-        const loginUrl = new URL("/", nextUrl.origin);
-        loginUrl.searchParams.set("auth", "signin");
-        loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
-        return NextResponse.redirect(loginUrl);
-      }
-
-      if (isAdminRoute && (auth?.user as { role?: string })?.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/", nextUrl.origin));
+      if (isAdminRoute) {
+        if (!isLoggedIn) {
+          return NextResponse.redirect(new URL("/", nextUrl.origin));
+        }
+        if ((auth?.user as { role?: string })?.role !== "ADMIN") {
+          return NextResponse.redirect(new URL("/", nextUrl.origin));
+        }
       }
 
       return true;

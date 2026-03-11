@@ -1,75 +1,86 @@
 "use client";
 
 import { EVENT_CONFIG } from "@/lib/config";
-import { useEffect, useRef } from "react";
+import { ChevronIcon } from "@/components/ui/Icons";
+import { useState, useRef, useEffect, useCallback } from "react";
 
-export default function FAQ() {
-  const sectionRef = useRef<HTMLElement>(null);
+/** Adds .visible to .reveal children when they enter the viewport */
+function useRevealChildren(ref: React.RefObject<HTMLElement | null>) {
+  const observed = useRef(false);
+
+  const observe = useCallback(() => {
+    const el = ref.current;
+    if (!el || observed.current) return;
+    observed.current = true;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            io.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+    );
+
+    el.querySelectorAll(".reveal").forEach((child) => io.observe(child));
+    return () => io.disconnect();
+  }, [ref]);
 
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("revealed");
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+    observe();
+  }, [observe]);
+}
+
+export default function FAQ() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  useRevealChildren(sectionRef);
+
+  const toggle = (i: number) => setOpenIndex(openIndex === i ? null : i);
 
   return (
-    <section id="faq" ref={sectionRef} className="reveal-up py-20 sm:py-28 bg-[#080808] scroll-mt-20 relative">
-      {/* Section divider */}
-      <div className="section-divider mb-20" />
+    <section className="px-4 py-20 max-w-3xl mx-auto" ref={sectionRef}>
+      <h2 className="reveal text-2xl font-bold text-foreground mb-8">Frequently Asked Questions</h2>
 
-      <div className="max-w-3xl mx-auto px-5 sm:px-8">
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-500/20 bg-amber-500/5 mb-6">
-            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
-            <span className="text-amber-400 text-[12px] font-semibold tracking-wider uppercase">
-              Got Questions?
-            </span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white">
-            Frequently Asked <span className="gradient-text">Questions</span>
-          </h2>
-        </div>
-
-        <div className="space-y-3">
-          {EVENT_CONFIG.faq.map(({ q, a }, i) => (
-            <details
+      <div className="space-y-2">
+        {EVENT_CONFIG.faq.map((item, i) => {
+          const isOpen = openIndex === i;
+          return (
+            <div
               key={i}
-              className="group bg-white/[0.02] border border-white/6 rounded-2xl px-6 py-5 hover:border-amber-500/20 hover:bg-white/[0.04] transition-all duration-300"
+              className={`reveal stagger-${Math.min(i + 1, 6)} rounded-md border transition-colors duration-200 ${
+                isOpen ? "border-accent/30 bg-card" : "border-border bg-transparent hover:bg-card/50"
+              }`}
             >
-              <summary className="cursor-pointer flex justify-between items-center font-semibold text-white/80 text-[15px] list-none">
-                {q}
-                <svg
-                  className="w-5 h-5 text-amber-500 shrink-0 ml-4 transition-transform duration-300 group-open:rotate-180"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <p className="mt-3 text-white/40 text-sm leading-relaxed">{a}</p>
-            </details>
-          ))}
-        </div>
+              <button
+                onClick={() => toggle(i)}
+                className="w-full flex items-center justify-between px-4 py-3.5 text-left text-sm font-medium text-foreground transition-colors"
+                aria-expanded={isOpen}
+              >
+                <span>{item.q}</span>
+                <ChevronIcon
+                  className={`w-4 h-4 shrink-0 text-muted-foreground transition-transform duration-300 ${
+                    isOpen ? "rotate-180" : "rotate-0"
+                  }`}
+                />
+              </button>
 
-        <p className="text-center text-sm text-white/30 mt-12">
-          Still have questions?{" "}
-          <a href="mailto:info@nepaliparty.ca" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors">
-            Email us
-          </a>
-        </p>
+              {/* Smooth height expand via grid-rows trick */}
+              <div className={`accordion-content ${isOpen ? "open" : ""}`}>
+                <div>
+                  <p className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed">
+                    {item.a}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
 }
+

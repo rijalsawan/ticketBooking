@@ -108,11 +108,11 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
   }
 
   return (
-    <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 space-y-6">
+    <div className="bg-card rounded-md border border-border p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-white text-lg">Event Details</h2>
-          <p className="text-white/40 text-xs mt-0.5">Edit all event information shown to attendees.</p>
+          <h2 className="font-semibold text-foreground text-lg">Event Details</h2>
+          <p className="text-muted-foreground text-xs mt-0.5">Edit all event information shown to attendees.</p>
         </div>
         <Button onClick={handleSave} loading={loading} size="sm">
           Save Changes
@@ -122,7 +122,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Title */}
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-white/60 mb-1">Title</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Title</label>
           <Input
             value={form.title}
             onChange={(e) => set("title", e.target.value)}
@@ -132,54 +132,54 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
 
         {/* Description */}
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-white/60 mb-1">Description</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Description</label>
           <textarea
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
             rows={3}
             placeholder="Short event description"
-            className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-amber-500/50 resize-none"
+            className="w-full rounded-md bg-transparent border border-border px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring resize-none"
           />
         </div>
 
         {/* Date */}
         <div>
-          <label className="block text-sm font-medium text-white/60 mb-1">Event Date</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Event Date</label>
           <input
             type="date"
             value={form.date}
             onChange={(e) => set("date", e.target.value)}
-            className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-amber-500/50 [color-scheme:dark]"
+            className="w-full rounded-md bg-transparent border border-border px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring [color-scheme:dark]"
           />
         </div>
 
         {/* Doors Open */}
         <div>
-          <label className="block text-sm font-medium text-white/60 mb-1">Doors Open <span className="text-white/25 font-normal text-xs">(shown as-entered)</span></label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Doors Open <span className="text-muted-foreground/50 font-normal text-xs">(shown as-entered)</span></label>
           <input
             type="time"
             value={form.doorsOpen}
             onChange={(e) => set("doorsOpen", e.target.value)}
-            className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-amber-500/50 [color-scheme:dark]"
+            className="w-full rounded-md bg-transparent border border-border px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring [color-scheme:dark]"
           />
         </div>
 
         {/* End Time */}
         <div>
-          <label className="block text-sm font-medium text-white/60 mb-1">End Time <span className="text-white/25 font-normal text-xs">(shown as-entered)</span></label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">End Time <span className="text-muted-foreground/50 font-normal text-xs">(shown as-entered)</span></label>
           <input
             type="time"
             value={form.endTime}
             onChange={(e) => set("endTime", e.target.value)}
-            className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-amber-500/50 [color-scheme:dark]"
+            className="w-full rounded-md bg-transparent border border-border px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring [color-scheme:dark]"
           />
         </div>
 
         {/* Price */}
         <div>
-          <label className="block text-sm font-medium text-white/60 mb-1">Ticket Price (CAD)</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Ticket Price (CAD)</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm">$</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
             <Input
               type="number"
               min="0"
@@ -194,7 +194,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
 
         {/* Venue */}
         <div>
-          <label className="block text-sm font-medium text-white/60 mb-1">Venue Name</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Venue Name</label>
           <Input
             value={form.venue}
             onChange={(e) => set("venue", e.target.value)}
@@ -204,7 +204,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
 
         {/* Address */}
         <div className="sm:col-span-2">
-          <label className="block text-sm font-medium text-white/60 mb-1">Address</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Address</label>
           <Input
             value={form.address}
             onChange={(e) => set("address", e.target.value)}
@@ -214,7 +214,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
 
         {/* Total Tickets */}
         <div>
-          <label className="block text-sm font-medium text-white/60 mb-1">Total Capacity</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Total Capacity</label>
           <Input
             type="number"
             min="0"
@@ -224,15 +224,15 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
         </div>
 
         {/* Active toggle */}
-        <div className="flex items-center justify-between rounded-xl bg-white/5 border border-white/10 px-4 py-3">
-          <span className="text-sm text-white/70">Event Active</span>
+        <div className="flex items-center justify-between rounded-md bg-secondary border border-border px-4 py-3">
+          <span className="text-sm text-muted-foreground">Event Active</span>
           <button
             type="button"
             role="switch"
             aria-checked={form.isActive}
             onClick={() => set("isActive", !form.isActive)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              form.isActive ? "bg-amber-500" : "bg-white/20"
+              form.isActive ? "bg-accent" : "bg-muted"
             }`}
           >
             <span
@@ -247,11 +247,11 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
       {/* Highlights */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <label className="block text-sm font-medium text-white/60">What&apos;s Included / Highlights</label>
+          <label className="block text-sm font-medium text-muted-foreground">What&apos;s Included / Highlights</label>
           <button
             type="button"
             onClick={addHighlight}
-            className="text-xs text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1"
+            className="text-xs text-accent hover:text-accent/80 font-medium flex items-center gap-1"
           >
             <span className="text-base leading-none">+</span> Add item
           </button>
@@ -268,7 +268,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
               <button
                 type="button"
                 onClick={() => removeHighlight(i)}
-                className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-lg border border-white/10 text-white/30 hover:text-red-400 hover:border-red-400/30 transition-colors"
+                className="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-md border border-border text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors"
                 aria-label="Remove item"
               >
                 ✕
@@ -276,12 +276,12 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
             </div>
           ))}
           {form.highlights.length === 0 && (
-            <p className="text-xs text-white/30 italic">No highlights yet. Click &quot;Add item&quot; to start.</p>
+            <p className="text-xs text-muted-foreground italic">No highlights yet. Click &quot;Add item&quot; to start.</p>
           )}
         </div>
       </div>
 
-      <div className="flex justify-end pt-2 border-t border-white/6">
+      <div className="flex justify-end pt-2 border-t border-border">
         <Button onClick={handleSave} loading={loading}>
           Save Changes
         </Button>

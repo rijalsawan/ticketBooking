@@ -86,8 +86,8 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-white">Orders</h1>
-          <p className="text-white/40 text-sm">{total} total orders</p>
+          <h1 className="text-2xl font-bold text-foreground">Orders</h1>
+          <p className="text-muted-foreground text-sm">{total} total orders</p>
         </div>
 
         {/* Filters */}
@@ -97,12 +97,12 @@ export default function AdminOrdersPage() {
             placeholder="Search by name, email, ID…"
             value={query}
             onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-white/30 focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+            className="bg-transparent border border-border rounded-md px-3 py-2 text-sm text-foreground placeholder-muted-foreground focus:ring-1 focus:ring-ring focus:outline-none"
           />
           <select
             value={status}
             onChange={(e) => { setStatus(e.target.value); setPage(1); }}
-            className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-amber-500/50 focus:outline-none"
+            className="bg-transparent border border-border rounded-md px-3 py-2 text-sm text-foreground focus:ring-1 focus:ring-ring focus:outline-none"
           >
             <option value="">All statuses</option>
             <option value="COMPLETED">Completed</option>
@@ -113,15 +113,15 @@ export default function AdminOrdersPage() {
         </div>
       </div>
 
-      <div className="bg-white/[0.03] rounded-2xl border border-white/6 overflow-hidden">
+      <div className="bg-card rounded-md border border-border overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-white/30 text-sm">
+          <div className="flex items-center justify-center py-16 text-muted-foreground text-sm">
             Loading…
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-white/[0.02] text-xs text-white/40 uppercase tracking-wider">
+              <thead className="bg-secondary text-xs text-muted-foreground uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3 text-left">Date</th>
                   <th className="px-4 py-3 text-left">Buyer</th>
@@ -131,33 +131,33 @@ export default function AdminOrdersPage() {
                   <th className="px-4 py-3 text-left">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/4">
+              <tbody className="divide-y divide-border">
                 {orders.map((order) => {
                   const name = order.user?.name ?? order.guestName ?? "Guest";
                   const email = order.user?.email ?? order.guestEmail ?? "—";
                   return (
-                    <tr key={order.id} className="hover:bg-white/[0.02]">
-                      <td className="px-4 py-3 whitespace-nowrap text-white/30 text-xs">
+                    <tr key={order.id} className="hover:bg-secondary/50">
+                      <td className="px-4 py-3 whitespace-nowrap text-muted-foreground text-xs">
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <p className="font-medium text-white">{name}</p>
-                        <p className="text-xs text-white/30">{email}</p>
+                        <p className="font-medium text-foreground">{name}</p>
+                        <p className="text-xs text-muted-foreground">{email}</p>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="font-semibold text-amber-400">×{order.quantity}</p>
+                        <p className="font-semibold text-accent">×{order.quantity}</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {order.tickets.slice(0, 2).map((t) => (
-                            <span key={t.ticketNumber} className="text-xs font-mono bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded">
+                            <span key={t.ticketNumber} className="text-xs font-mono bg-accent/10 text-accent px-1.5 py-0.5 rounded">
                               {t.ticketNumber}
                             </span>
                           ))}
                           {order.tickets.length > 2 && (
-                            <span className="text-xs text-white/30">+{order.tickets.length - 2}</span>
+                            <span className="text-xs text-muted-foreground">+{order.tickets.length - 2}</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 font-semibold text-white">
+                      <td className="px-4 py-3 font-semibold text-foreground">
                         {formatPrice(order.total)}
                       </td>
                       <td className="px-4 py-3">
@@ -168,7 +168,7 @@ export default function AdminOrdersPage() {
                       <td className="px-4 py-3">
                         {order.status === "COMPLETED" && (
                           <Button
-                            variant="danger"
+                            variant="destructive"
                             size="sm"
                             loading={refunding === order.id}
                             onClick={() => handleRefund(order.id)}
@@ -183,7 +183,7 @@ export default function AdminOrdersPage() {
                 })}
                 {orders.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-white/30">
+                    <td colSpan={6} className="py-12 text-center text-muted-foreground">
                       No orders found
                     </td>
                   </tr>
@@ -195,20 +195,20 @@ export default function AdminOrdersPage() {
 
         {/* Pagination */}
         {pages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-white/6 text-sm text-white/40">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border text-sm text-muted-foreground">
             <span>Page {page} of {pages}</span>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1 rounded border border-white/10 hover:bg-white/5 disabled:opacity-40 text-white/60"
+                className="px-3 py-1 rounded-md border border-border hover:bg-secondary disabled:opacity-40 text-muted-foreground"
               >
                 ← Prev
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(pages, p + 1))}
                 disabled={page >= pages}
-                className="px-3 py-1 rounded border border-white/10 hover:bg-white/5 disabled:opacity-40 text-white/60"
+                className="px-3 py-1 rounded-md border border-border hover:bg-secondary disabled:opacity-40 text-muted-foreground"
               >
                 Next →
               </button>

@@ -10,6 +10,7 @@ import { stripe } from "@/lib/stripe";
 import prisma from "@/lib/prisma";
 import { generateTicketNumber } from "@/lib/utils";
 import { sendTicketConfirmationEmail, sendAdminNewOrderEmail } from "@/lib/email";
+import { generateTicketPDF } from "@/lib/pdf";
 import { SITE_CONFIG } from "@/lib/config";
 
 export const runtime = "nodejs"; // required for raw body parsing
@@ -174,10 +175,32 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   // Fetch created tickets for email
   const tickets = await prisma.ticket.findMany({
     where: { orderId },
-    select: { ticketNumber: true, holderName: true },
+    select: { ticketNumber: true, holderName: true, ticketType: true, groupSize: true, groupMembers: true },
   });
 
-  // Send confirmation email
+  // Generate PDF for each ticket
+  let pdfBuffers: Array<{ filename: string; content: Buffer }> = [];
+  try {
+    pdfBuffers = await Promise.all(
+      tickets.map(async (t) => {
+        const pdf = await generateTicketPDF({
+          ticketNumber: t.ticketNumber,
+          holderName: t.holderName ?? customerName,
+          holderEmail: customerEmail,
+          orderId,
+          quantity,
+          total: session.amount_total ?? 0,
+          groupMembers: (t.groupMembers as string[]) ?? [],
+          ticketType: t.ticketType,
+        });
+        return { filename: `ticket-${t.ticketNumber}.pdf`, content: pdf };
+      }),
+    );
+  } catch (pdfErr) {
+    console.error("[PDF] Failed to generate:", pdfErr);
+  }
+
+  // Send confirmation email with PDF attachments
   try {
     await sendTicketConfirmationEmail({
       to: customerEmail,
@@ -187,6 +210,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       quantity,
       total: session.amount_total ?? 0,
       appUrl: SITE_CONFIG.url,
+      pdfBuffers,
     });
   } catch (emailErr) {
     console.error("[EMAIL] Failed to send confirmation:", emailErr);

@@ -209,8 +209,8 @@ export default function AdminVerifyPage() {
     <div className="max-w-lg mx-auto space-y-4">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Verify Tickets</h1>
-        <p className="text-sm text-white/35 mt-1">
+        <h1 className="text-2xl font-bold text-foreground tracking-tight">Verify Tickets</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Scan a QR code or enter the ticket number manually
         </p>
       </div>
@@ -233,7 +233,7 @@ export default function AdminVerifyPage() {
       )}
 
       {/* Scanner card */}
-      <div className="bg-[#111] rounded-2xl border border-white/[0.06] overflow-hidden">
+      <div className="bg-card rounded-md border border-border overflow-hidden">
 
         {/*
           The QR reader div MUST have real pixel dimensions when scanner.start()
@@ -251,18 +251,18 @@ export default function AdminVerifyPage() {
           {/* Placeholder overlay  shown when camera not open */}
           {!cameraOpen && (
             <div className="flex flex-col items-center justify-center py-14 px-6">
-              <div className="w-16 h-16 rounded-2xl bg-white/[0.04] flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-white/15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 rounded-md bg-secondary flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-muted-foreground/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                 </svg>
               </div>
-              <p className="text-sm text-white/25 mb-5 text-center">
+              <p className="text-sm text-muted-foreground mb-5 text-center">
                 Point your camera at the ticket QR code to verify
               </p>
               <button
                 onClick={startCamera}
                 disabled={httpsWarning}
-                className="bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-black text-sm font-semibold px-7 py-2.5 rounded-xl transition-colors cursor-pointer"
+                className="bg-accent hover:bg-accent/90 disabled:opacity-30 disabled:cursor-not-allowed text-accent-foreground text-sm font-semibold px-7 py-2.5 rounded-md transition-colors cursor-pointer"
               >
                 Open Camera
               </button>
@@ -273,8 +273,8 @@ export default function AdminVerifyPage() {
           {cameraOpen && !cameraLive && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
               <div className="flex flex-col items-center gap-3">
-                <div className="w-7 h-7 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin" />
-                <p className="text-xs text-white/40">Starting camera</p>
+                <div className="w-7 h-7 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
+                <p className="text-xs text-muted-foreground">Starting camera</p>
               </div>
             </div>
           )}
@@ -297,10 +297,10 @@ export default function AdminVerifyPage() {
         </div>
 
         {/* Manual input divider */}
-        <div className="flex items-center gap-3 px-5 py-3 border-t border-white/[0.04]">
-          <div className="flex-1 h-px bg-white/[0.05]" />
-          <span className="text-[11px] text-white/15 uppercase tracking-wider">or enter manually</span>
-          <div className="flex-1 h-px bg-white/[0.05]" />
+        <div className="flex items-center gap-3 px-5 py-3 border-t border-border">
+          <div className="flex-1 h-px bg-border" />
+          <span className="text-[11px] text-muted-foreground/50 uppercase tracking-wider">or enter manually</span>
+          <div className="flex-1 h-px bg-border" />
         </div>
 
         {/* Manual input */}
@@ -311,12 +311,12 @@ export default function AdminVerifyPage() {
               value={manualInput}
               onChange={(e) => setManualInput(e.target.value.toUpperCase())}
               placeholder="NNY2026-0001"
-              className="flex-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/15 focus:outline-none focus:border-amber-500/30 transition-colors font-mono"
+              className="flex-1 bg-transparent border border-border rounded-md px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring transition-colors font-mono"
             />
             <button
               type="submit"
               disabled={!manualInput.trim() || scanState === "verifying"}
-              className="bg-white/[0.06] hover:bg-white/[0.10] disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-xl border border-white/[0.06] transition-all cursor-pointer"
+              className="bg-secondary hover:bg-secondary/80 disabled:opacity-30 disabled:cursor-not-allowed text-foreground text-sm font-medium px-5 py-2.5 rounded-md border border-border transition-all cursor-pointer"
             >
               Check
             </button>
@@ -326,16 +326,16 @@ export default function AdminVerifyPage() {
 
       {/* Verifying spinner */}
       {scanState === "verifying" && (
-        <div className="bg-[#111] rounded-2xl border border-white/[0.06] p-10 text-center">
-          <div className="w-8 h-8 rounded-full border-2 border-amber-400/30 border-t-amber-400 animate-spin mx-auto mb-3" />
-          <p className="text-sm text-white/40">Verifying ticket</p>
+        <div className="bg-card rounded-md border border-border p-10 text-center">
+          <div className="w-8 h-8 rounded-full border-2 border-accent/30 border-t-accent animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Verifying ticket</p>
         </div>
       )}
 
       {/* Result card */}
       {result && scanState !== "verifying" && (
         <div
-          className={`rounded-2xl border overflow-hidden ${
+          className={`rounded-md border overflow-hidden ${
             scanState === "success"
               ? "bg-emerald-500/[0.05] border-emerald-500/20"
               : scanState === "already-used"
@@ -377,7 +377,7 @@ export default function AdminVerifyPage() {
                 {result.message || result.error}
               </p>
               {result.ticket && (
-                <p className="text-xs text-white/30 mt-0.5 font-mono">
+                <p className="text-xs text-muted-foreground mt-0.5 font-mono">
                   {result.ticket.ticketNumber}
                 </p>
               )}
@@ -386,7 +386,7 @@ export default function AdminVerifyPage() {
 
           {/* Ticket details */}
           {result.ticket && (
-            <div className="border-t border-white/[0.06] px-5 py-4 space-y-2.5">
+            <div className="border-t border-border px-5 py-4 space-y-2.5">
               {result.ticket.ticketType === "GROUP" ? (
                 <>
                   <DetailRow label="Type" value={`Group ticket · ${result.ticket.groupSize ?? "?"} people`} />
@@ -403,10 +403,10 @@ export default function AdminVerifyPage() {
                     } catch { /* ignore */ }
                     return members.length > 0 ? (
                       <div className="flex items-start justify-between text-sm gap-4">
-                        <span className="text-white/25 shrink-0">Members</span>
+                        <span className="text-muted-foreground shrink-0">Members</span>
                         <div className="flex flex-wrap gap-1.5 justify-end">
                           {members.map((name, i) => (
-                            <span key={i} className="text-xs bg-white/[0.05] border border-white/[0.08] text-white/60 px-2 py-0.5 rounded-md">{name}</span>
+                            <span key={i} className="text-xs bg-secondary border border-border text-muted-foreground px-2 py-0.5 rounded-md">{name}</span>
                           ))}
                         </div>
                       </div>
@@ -425,17 +425,17 @@ export default function AdminVerifyPage() {
           )}
 
           {/* Actions */}
-          <div className="border-t border-white/[0.06] px-5 py-3 flex gap-3">
+          <div className="border-t border-border px-5 py-3 flex gap-3">
             <button
               onClick={resetScan}
-              className="text-sm text-white/35 hover:text-white transition-colors cursor-pointer"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               Dismiss
             </button>
-            <span className="text-white/10"></span>
+            <span className="text-border"></span>
             <button
               onClick={scanAgain}
-              className="text-sm text-amber-400/70 hover:text-amber-400 transition-colors cursor-pointer font-medium"
+              className="text-sm text-accent/70 hover:text-accent transition-colors cursor-pointer font-medium"
             >
               Scan Next Ticket
             </button>
@@ -451,8 +451,8 @@ export default function AdminVerifyPage() {
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between text-sm gap-4">
-      <span className="text-white/25 shrink-0">{label}</span>
-      <span className="text-white/60 text-right">{value}</span>
+      <span className="text-muted-foreground shrink-0">{label}</span>
+      <span className="text-foreground/60 text-right">{value}</span>
     </div>
   );
 }

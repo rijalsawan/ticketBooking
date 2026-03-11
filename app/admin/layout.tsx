@@ -14,24 +14,24 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#080808]">
+    <div className="min-h-screen bg-background">
       {/* Admin top bar */}
-      <div className="bg-[#0e0e0e] text-white px-4 py-3 flex items-center justify-between text-sm border-b border-white/6">
+      <div className="bg-card px-4 py-3 flex items-center justify-between text-sm border-b border-border">
         <div className="flex items-center gap-3">
-          <span className="font-bold text-amber-400">Admin Panel</span>
-          <span className="text-white/20 hidden sm:block">|</span>
-          <span className="text-white/40 hidden sm:block">Nepali New Year 2026</span>
+          <span className="font-bold text-accent">Admin Panel</span>
+          <span className="text-border hidden sm:block">|</span>
+          <span className="text-muted-foreground hidden sm:block">Nepali New Year 2026</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-white/30 text-xs">{session.user.email}</span>
-          <Link href="/" className="text-white/40 hover:text-white transition-colors text-xs">
+          <span className="text-muted-foreground text-xs">{session.user.email}</span>
+          <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors text-xs">
             ← View Site
           </Link>
         </div>
       </div>
 
       {/* Admin nav */}
-      <div className="bg-[#0a0a0a] border-b border-white/6">
+      <div className="bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-4 flex gap-1 py-2 text-sm overflow-x-auto">
           {[
             { href: "/admin", label: "Dashboard" },
@@ -43,7 +43,7 @@ export default async function AdminLayout({
             <Link
               key={href}
               href={href}
-              className="px-4 py-2 rounded-lg font-medium text-white/50 hover:bg-white/5 hover:text-amber-400 transition-colors whitespace-nowrap"
+              className="px-4 py-2 rounded-md font-medium text-muted-foreground hover:bg-secondary hover:text-accent transition-colors whitespace-nowrap"
             >
               {label}
             </Link>

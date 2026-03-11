@@ -25,38 +25,27 @@ export default async function CheckoutPage() {
   const remaining = event ? event.totalTickets - event.soldTickets : EVENT_CONFIG.totalCapacity;
 
   return (
-    <div className="min-h-[80vh] bg-[#080808] py-28 px-4">
+    <div className="min-h-[80vh] py-24 px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Heading */}
         <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white">
-            Get Your Tickets
-          </h1>
-          <p className="text-white/40 mt-2 text-sm">
-            Secure checkout powered by Stripe
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Get Your Tickets</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Secure checkout powered by Stripe</p>
         </div>
 
         {!event ? (
-          <div className="text-center bg-red-500/5 border border-red-500/20 rounded-2xl p-12">
-            <p className="text-red-400 font-semibold mb-2">Event not available</p>
-            <p className="text-white/30 text-sm">The event could not be loaded. Please try again later.</p>
+          <div className="text-center rounded-lg border border-destructive/30 bg-destructive/5 p-12">
+            <p className="text-destructive font-medium mb-1">Event not available</p>
+            <p className="text-muted-foreground text-sm">The event could not be loaded. Please try again later.</p>
           </div>
         ) : soldOut ? (
-          <div className="text-center bg-white/[0.03] rounded-2xl p-12 shadow border border-white/6">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Sold Out</h2>
-            <p className="text-white/40">
-              All {event?.totalTickets} tickets have been claimed. Stay tuned for future events!
+          <div className="text-center rounded-lg border border-border bg-card p-12">
+            <h2 className="text-xl font-semibold text-foreground mb-2">Sold Out</h2>
+            <p className="text-muted-foreground">
+              All {event.totalTickets} tickets have been claimed. Stay tuned for future events!
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            {/* Checkout form – 3 cols */}
             <div className="lg:col-span-3">
               <CheckoutForm
                 eventId={event.id}
@@ -64,12 +53,8 @@ export default async function CheckoutPage() {
                 maxQuantity={Math.min(remaining, EVENT_CONFIG.maxTicketsPerOrder)}
               />
             </div>
-            {/* Order summary – 2 cols */}
             <div className="lg:col-span-2">
-              <OrderSummary
-                pricePerTicket={event.price}
-                remaining={remaining}
-              />
+              <OrderSummary pricePerTicket={event.price} remaining={remaining} />
             </div>
           </div>
         )}
@@ -77,3 +62,4 @@ export default async function CheckoutPage() {
     </div>
   );
 }
+
