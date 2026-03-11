@@ -23,6 +23,7 @@ export default async function CheckoutPage() {
 
   const soldOut = event ? event.soldTickets >= event.totalTickets : false;
   const remaining = event ? event.totalTickets - event.soldTickets : EVENT_CONFIG.totalCapacity;
+  const showAvailability = event ? (event as Record<string, unknown>).showAvailability !== false : true;
 
   return (
     <div className="min-h-[80vh] py-24 px-4">
@@ -54,7 +55,7 @@ export default async function CheckoutPage() {
               />
             </div>
             <div className="lg:col-span-2">
-              <OrderSummary pricePerTicket={event.price} remaining={remaining} />
+              <OrderSummary pricePerTicket={event.price} remaining={remaining} showAvailability={showAvailability} />
             </div>
           </div>
         )}

@@ -42,6 +42,7 @@ export default async function AdminSettingsPage() {
             price: event.price,
             totalTickets: event.totalTickets,
             isActive: event.isActive,
+            showAvailability: (event as Record<string, unknown>).showAvailability as boolean ?? true,
             highlights: Array.isArray((event as Record<string, unknown>).highlights)
               ? (event as Record<string, unknown>).highlights as string[]
               : [],

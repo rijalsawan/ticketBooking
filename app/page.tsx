@@ -47,6 +47,7 @@ export default async function HomePage() {
   const address     = event?.address   ?? undefined;
   const price       = event?.price     ?? undefined;
   const highlights  = event?.highlights?.length ? event.highlights : undefined;
+  const showAvailability = (event as Record<string, unknown> | null)?.showAvailability !== false;
 
   return (
     <>
@@ -57,6 +58,7 @@ export default async function HomePage() {
         doorsOpen={doorsOpen}
         venue={venue}
         price={price}
+        showAvailability={showAvailability}
       />
       <EventDetails
         eventDate={eventDate}

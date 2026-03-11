@@ -26,7 +26,7 @@ export async function PATCH(req: NextRequest) {
 
   const {
     title, shortDesc, description, venue, address,
-    date, doorsOpen, endTime, price, totalTickets, isActive, highlights,
+    date, doorsOpen, endTime, price, totalTickets, isActive, showAvailability, highlights,
   } = parsed.data;
 
   const event = await prisma.event.update({
@@ -43,6 +43,7 @@ export async function PATCH(req: NextRequest) {
       price,
       totalTickets,
       isActive,
+      ...(showAvailability !== undefined ? { showAvailability } : {}),
       highlights,
     },
   });

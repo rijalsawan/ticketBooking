@@ -4,9 +4,10 @@ import { EVENT_CONFIG } from "@/lib/config";
 interface Props {
   pricePerTicket: number;
   remaining: number;
+  showAvailability?: boolean;
 }
 
-export default function OrderSummary({ pricePerTicket, remaining }: Props) {
+export default function OrderSummary({ pricePerTicket, remaining, showAvailability = true }: Props) {
   const { tax, total } = calculateOrderTotals(pricePerTicket, 1);
   const soldPercent = Math.min(
     100,
@@ -49,6 +50,7 @@ export default function OrderSummary({ pricePerTicket, remaining }: Props) {
       </div>
 
       {/* Availability */}
+      {showAvailability && (
       <div className="rounded-lg border border-border bg-card p-4 text-sm">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Availability</span>
@@ -66,6 +68,7 @@ export default function OrderSummary({ pricePerTicket, remaining }: Props) {
           {EVENT_CONFIG.totalCapacity - remaining} / {EVENT_CONFIG.totalCapacity} sold
         </p>
       </div>
+      )}
 
       {/* What's included */}
       <div className="rounded-lg border border-border bg-card p-4 text-sm">

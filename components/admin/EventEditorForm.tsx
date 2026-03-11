@@ -17,6 +17,7 @@ interface EventData {
   price: number;
   totalTickets: number;
   isActive: boolean;
+  showAvailability: boolean;
   highlights: string[];
 }
 
@@ -43,6 +44,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
     price: (initialEvent.price / 100).toFixed(2),
     totalTickets: String(initialEvent.totalTickets),
     isActive: initialEvent.isActive,
+    showAvailability: initialEvent.showAvailability,
     highlights: initialEvent.highlights.length ? initialEvent.highlights : [""],
   });
 
@@ -88,6 +90,7 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
           price: Math.round(parseFloat(form.price) * 100),
           totalTickets: parseInt(form.totalTickets, 10),
           isActive: form.isActive,
+          showAvailability: form.showAvailability,
           highlights: form.highlights.filter((h) => h.trim()),
         }),
       });
@@ -238,6 +241,29 @@ export default function EventEditorForm({ event: initialEvent }: Props) {
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
                 form.isActive ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Show Availability toggle */}
+        <div className="flex items-center justify-between rounded-md bg-secondary border border-border px-4 py-3">
+          <div>
+            <span className="text-sm text-muted-foreground">Show Availability</span>
+            <p className="text-xs text-muted-foreground/60 mt-0.5">Display remaining tickets on checkout &amp; landing page</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={form.showAvailability}
+            onClick={() => set("showAvailability", !form.showAvailability)}
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              form.showAvailability ? "bg-accent" : "bg-muted"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                form.showAvailability ? "translate-x-6" : "translate-x-1"
               }`}
             />
           </button>

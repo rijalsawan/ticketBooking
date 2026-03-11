@@ -12,6 +12,7 @@ interface HeroProps {
   doorsOpen?: string;
   venue?: string;
   price?: number;
+  showAvailability?: boolean;
 }
 
 /* Deterministic pseudo-random using a simple seed — avoids hydration mismatches */
@@ -23,10 +24,10 @@ function seededRandom(seed: number) {
   };
 }
 
-export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, venue, price }: HeroProps) {
+export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, venue, price, showAvailability = true }: HeroProps) {
   const remaining = seatsRemaining(totalTickets, soldTickets);
   const soldOut = remaining === 0;
-  const almostSold = remaining <= 20 && remaining > 0;
+  const almostSold = showAvailability && remaining <= 20 && remaining > 0;
 
   /* Generate star positions once — deterministic so server & client match */
   const stars = useMemo(() => {

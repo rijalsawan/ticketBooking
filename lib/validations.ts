@@ -37,6 +37,7 @@ export const updateEventSchema = z.object({
   price: z.number().int().positive(),
   totalTickets: z.number().int().positive(),
   isActive: z.boolean(),
+  showAvailability: z.boolean().optional(),
   highlights: z.array(z.string()),
 });
 

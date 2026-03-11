@@ -115,8 +115,9 @@ model Event {
   price        Int      // in cents (e.g., 1500 = $15.00)
   totalTickets Int      @default(200)
   soldTickets  Int      @default(0)
-  isActive     Boolean  @default(true)
-  highlights   String[] // editable list of what's included
+  isActive         Boolean  @default(true)
+  showAvailability Boolean  @default(true)
+  highlights       String[] // editable list of what's included
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
