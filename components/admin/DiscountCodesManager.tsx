@@ -19,20 +19,8 @@ interface DiscountCode {
   _count: { orders: number };
 }
 
-interface UsageEntry {
-  orderId: string;
-  code: string;
-  name: string;
-  email: string;
-  discountAmount: number; // cents
-  total: number;         // cents
-  quantity: number;
-  createdAt: string;
-}
-
 interface Props {
   initialCodes: DiscountCode[];
-  initialUsage: UsageEntry[];
 }
 
 const empty = {
@@ -45,7 +33,7 @@ const empty = {
   isActive: true,
 };
 
-export default function DiscountCodesManager({ initialCodes, initialUsage }: Props) {
+export default function DiscountCodesManager({ initialCodes }: Props) {
   const [codes, setCodes] = useState<DiscountCode[]>(initialCodes);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ ...empty });
@@ -53,7 +41,6 @@ export default function DiscountCodesManager({ initialCodes, initialUsage }: Pro
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [viewingCode, setViewingCode] = useState<DiscountCode | null>(null);
-  const [usageFilter, setUsageFilter] = useState<string>("ALL");
 
   function setField(key: keyof typeof form, val: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: val }));
@@ -294,86 +281,6 @@ export default function DiscountCodesManager({ initialCodes, initialUsage }: Pro
           </table>
         </div>
       )}
-    </div>
-
-    {/* Usage Log */}
-    <div className="bg-white/[0.03] rounded-2xl border border-white/6 p-6 space-y-4">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h2 className="font-semibold text-white text-lg">Code Usage Log</h2>
-          <p className="text-white/40 text-xs mt-0.5">Completed orders where a discount code was applied.</p>
-        </div>
-        {/* Filter by code */}
-        <select
-          value={usageFilter}
-          onChange={(e) => setUsageFilter(e.target.value)}
-          className="rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-amber-500/50 [color-scheme:dark]"
-        >
-          <option value="ALL">All codes</option>
-          {Array.from(new Set(initialUsage.map((u) => u.code))).map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </div>
-
-      {initialUsage.length === 0 ? (
-        <p className="text-sm text-white/30 text-center py-6">No discount code usage yet.</p>
-      ) : (() => {
-        const filtered = usageFilter === "ALL" ? initialUsage : initialUsage.filter((u) => u.code === usageFilter);
-        if (filtered.length === 0) {
-          return <p className="text-sm text-white/30 text-center py-6">No usage for code <span className="font-mono text-amber-400">{usageFilter}</span>.</p>;
-        }
-        return (
-          <>
-            <div className="text-xs text-white/30 mb-1">
-              {filtered.length} {filtered.length === 1 ? "use" : "uses"}
-              {usageFilter !== "ALL" && <> · <span className="font-mono text-amber-400">{usageFilter}</span></>}
-              {" · saved "}
-              <span className="text-green-400">
-                ${(filtered.reduce((s, u) => s + u.discountAmount, 0) / 100).toFixed(2)} total
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-white/30 text-xs border-b border-white/6">
-                    <th className="text-left pb-2 font-medium">Code</th>
-                    <th className="text-left pb-2 font-medium">Name</th>
-                    <th className="text-left pb-2 font-medium">Email</th>
-                    <th className="text-center pb-2 font-medium">Qty</th>
-                    <th className="text-right pb-2 font-medium">Saved</th>
-                    <th className="text-right pb-2 font-medium">Total paid</th>
-                    <th className="text-right pb-2 font-medium">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/4">
-                  {filtered.map((u) => (
-                    <tr key={u.orderId} className="hover:bg-white/[0.02]">
-                      <td className="py-2.5 pr-3">
-                        <code className="text-amber-400 font-mono tracking-widest font-bold bg-amber-500/10 px-2 py-0.5 rounded text-xs">
-                          {u.code}
-                        </code>
-                      </td>
-                      <td className="py-2.5 pr-3 text-white/80 font-medium">{u.name}</td>
-                      <td className="py-2.5 pr-3 text-white/40 text-xs">{u.email || "—"}</td>
-                      <td className="py-2.5 text-center text-white/50">{u.quantity}</td>
-                      <td className="py-2.5 text-right text-green-400 font-semibold">
-                        −${(u.discountAmount / 100).toFixed(2)}
-                      </td>
-                      <td className="py-2.5 text-right text-white/70">
-                        ${(u.total / 100).toFixed(2)}
-                      </td>
-                      <td className="py-2.5 text-right text-white/30 text-xs whitespace-nowrap">
-                        {new Date(u.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        );
-      })()}
     </div>
 
     {/* View Details Modal */}

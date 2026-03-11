@@ -96,8 +96,12 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
   useParticles(canvasRef);
 
   useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 100);
-    return () => clearTimeout(t);
+    // Double-rAF ensures the browser has painted the initial frame before
+    // triggering transitions — more reliable than a fixed timeout on slow devices.
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setMounted(true));
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   return (
@@ -172,7 +176,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
       <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-8 py-32 text-center">
         {/* Badge */}
         <div
-          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/8 bg-white/4 backdrop-blur-sm mb-8 transition-all duration-700 ${
+          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/8 bg-white/4 backdrop-blur-sm mb-8 hero-fade-in duration-700 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
@@ -184,7 +188,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
 
         {/* Nepali greeting with animated glow */}
         <p
-          className={`text-amber-400/80 text-base sm:text-lg font-medium mb-4 tracking-wide text-glow transition-all duration-700 delay-100 ${
+          className={`text-amber-400/80 text-base sm:text-lg font-medium mb-4 tracking-wide text-glow hero-fade-in duration-700 delay-100 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
           lang="ne"
@@ -194,7 +198,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
 
         {/* Main title with animated gradient text */}
         <h1
-          className={`transition-all duration-1000 delay-200 ${
+          className={`hero-fade-in duration-1000 delay-200 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
           }`}
         >
@@ -208,7 +212,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
 
         {/* Location */}
         <p
-          className={`mt-6 text-lg sm:text-xl text-white/40 font-light tracking-wide transition-all duration-700 delay-300 ${
+          className={`mt-6 text-lg sm:text-xl text-white/40 font-light tracking-wide hero-fade-in duration-700 delay-300 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
@@ -217,7 +221,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
 
         {/* Info pills — with SVG icons instead of emojis */}
         <div
-          className={`flex flex-wrap justify-center gap-3 mt-8 mb-10 transition-all duration-700 delay-400 ${
+          className={`flex flex-wrap justify-center gap-3 mt-8 mb-10 hero-fade-in duration-700 delay-400 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
@@ -238,7 +242,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
 
         {/* Price + availability */}
         <div
-          className={`flex flex-col items-center gap-3 mb-10 transition-all duration-700 delay-500 ${
+          className={`flex flex-col items-center gap-3 mb-10 hero-fade-in duration-700 delay-500 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
@@ -266,7 +270,7 @@ export default function Hero({ totalTickets, soldTickets, eventDate, doorsOpen, 
 
         {/* CTA buttons */}
         <div
-          className={`flex flex-wrap justify-center gap-4 transition-all duration-700 delay-600 ${
+          className={`flex flex-wrap justify-center gap-4 hero-fade-in duration-700 delay-600 ${
             mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
