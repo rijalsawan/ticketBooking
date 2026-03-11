@@ -33,10 +33,10 @@ export const authConfig: NextAuthConfig = {
 
       if (isAdminRoute) {
         if (!isLoggedIn) {
-          return NextResponse.redirect(new URL("/", nextUrl.origin));
+          return NextResponse.redirect(new URL(`/login?callbackUrl=${encodeURIComponent(nextUrl.pathname)}`, nextUrl.origin));
         }
         if ((auth?.user as { role?: string })?.role !== "ADMIN") {
-          return NextResponse.redirect(new URL("/", nextUrl.origin));
+          return NextResponse.redirect(new URL("/login?callbackUrl=/admin", nextUrl.origin));
         }
       }
 
