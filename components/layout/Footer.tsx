@@ -72,11 +72,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/tickets" className="text-xs text-muted-foreground hover:text-foreground hover:-translate-y-0.5 transition-all inline-block">
-                  My Tickets
-                </Link>
-              </li>
-              <li>
                 <a href={`mailto:${SITE_CONFIG.contactEmail}`} className="text-xs text-muted-foreground hover:text-foreground hover:-translate-y-0.5 transition-all inline-block">
                   Contact Us
                 </a>

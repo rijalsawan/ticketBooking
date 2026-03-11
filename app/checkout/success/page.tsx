@@ -90,14 +90,8 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href="/tickets"
-            className="inline-flex items-center justify-center bg-primary text-primary-foreground font-medium px-5 py-2 rounded-md text-sm hover:bg-primary/90 transition-colors"
-          >
-            Look Up Tickets
-          </Link>
-          <Link
             href="/"
-            className="inline-flex items-center justify-center border border-border text-muted-foreground hover:text-foreground hover:bg-secondary font-medium px-5 py-2 rounded-md text-sm transition-colors"
+            className="inline-flex items-center justify-center bg-primary text-primary-foreground font-medium px-5 py-2 rounded-md text-sm hover:bg-primary/90 transition-colors"
           >
             Back to Home
           </Link>

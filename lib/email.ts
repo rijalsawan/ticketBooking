@@ -84,8 +84,6 @@ export async function sendTicketConfirmationEmail(data: TicketEmailData) {
     <h3 style="color:#18181b;margin-top:20px;">Ticket Numbers</h3>
     ${ticketList}
 
-    <a href="${appUrl}/tickets" class="btn">Look Up Your Tickets</a>
-
     <p style="font-size:12px;color:#71717a;margin-top:16px;">
       <strong>Order ID: </strong> ${orderId}<br/>
       Please save this email and the attached PDF. A valid photo ID is required at the door.

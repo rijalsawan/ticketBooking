@@ -8,7 +8,6 @@ import { EVENT_CONFIG } from "@/lib/config";
 
 const links = [
   { href: "/checkout", label: "Buy Tickets" },
-  { href: "/tickets", label: "My Tickets" },
 ];
 
 export default function Navbar() {
