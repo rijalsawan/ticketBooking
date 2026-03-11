@@ -62,7 +62,7 @@ export const SITE_CONFIG = {
     "Buy tickets for the Nepali New Year 2082 BS celebration in Winnipeg, Manitoba, Canada. Join the community for food, music, and culture.",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   ogImage: "/og-image.jpg",
-  contactEmail: "info@nepaliparty.ca",
+  contactEmail: "rijalsawan@gmail.com",
   socialLinks: {
     facebook: "https://facebook.com/",
     instagram: "https://instagram.com/",
