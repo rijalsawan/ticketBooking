@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import { SITE_CONFIG, EVENT_CONFIG } from "@/lib/config";
 import Script from "next/script";
 import { Suspense } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import { Analytics } from "@vercel/analytics/next"
 
@@ -74,6 +75,7 @@ export default function RootLayout({
         </SessionProvider>
 
         <Analytics />
+        <SpeedInsights />
 
         {/* Google Analytics */}
         {process.env.NEXT_PUBLIC_GA_ID && (
